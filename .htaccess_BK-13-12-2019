@@ -1,0 +1,10 @@
+RewriteEngine On
+RewriteBase /
+
+RedirectMatch 301 ^/enrollment/login\.php$ /patients-dashboard/login\.php
+RedirectMatch 301 ^/patients-dashboard/register\.php$ /enrollment/register\.php
+RedirectMatch 301 ^/register\.php /enrollment/register\.php
+RedirectMatch 301 ^/login\.php /patients-dashboard/login\.php
+
+php_value upload_max_filesize 20M
+php_value post_max_size 20M

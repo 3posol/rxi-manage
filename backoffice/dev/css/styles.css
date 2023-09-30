@@ -1,0 +1,106 @@
+html {
+	margin: 0;
+	padding: 0;
+	color: #000;
+	font-size: 14px;
+	background-color: #e6f1f5;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	margin: 0;
+	padding: 0;
+}
+
+p {
+	margin: 0;
+	padding: 0;
+}
+
+input {
+	color: #000;
+}
+
+input.error {
+	color: #fff;
+	background-color: #f00;
+}
+
+label {
+	display: inline-block;
+	width: 90px;
+}
+
+label.label-long {
+	width: 150px;
+}
+
+table {
+	margin: 0;
+	padding: 0;
+	border-spacing: 0;
+	border-collapse: separate;
+}
+
+table thead tr td {
+	font-weight: bold;
+	border-bottom: 1px solid #999;
+}
+
+table td {
+	padding: 5px 10px;
+	border-left: 1px solid #999;
+}
+
+table td:first-child {
+	border-left: 0px solid #999;
+}
+
+.error {
+	color: #f00;
+}
+
+.align-left {
+	text-align: left;
+}
+
+.align-center {
+	text-align: center;
+}
+
+.align-right {
+	text-align: right;
+}
+
+.pull-left {
+	float: left;
+}
+
+.pull-right {
+	float: left;
+}
+
+.clear {
+	clear: both;
+	float: none;
+}
+
+.nobr {
+	white-space: nowrap;
+}
+
+.header {
+	margin: 0 0 30px 0;
+	padding: 0 0 10px 0;
+	border-bottom: 1px solid #999;
+}
+
+.footer {
+	margin: 40px 0 0 0;
+	padding: 10px 0 0 0;
+	border-top: 1px solid #999;
+}
+
+.footer p {
+	color: #999;
+	font-size: 12px;
+}

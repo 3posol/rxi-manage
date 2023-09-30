@@ -1,0 +1,139 @@
+<?php
+
+require_once('includes/functions.php');
+
+session_start();
+
+//check login
+$patient_logged_in = is_patient_logged_in();
+if (!$patient_logged_in) {
+	header('Location: login.php');
+}
+
+//get data
+
+$data = array(
+	'IncomeProof' 			=> ''
+);
+
+$success = false;
+$message = 'Some data is missing, please fill all required fields and try again.';
+if (isset($_FILES['income_proof']['type']) && in_array($_FILES['income_proof']['type'], array('application/pdf')) ) {
+	$patient_data['income_proof_file'] = base64_encode(file_get_contents($_FILES['income_proof']['tmp_name']));
+	$file_name = $_SESSION['PLP']['patient']->PatientID . '_' . date('YmdHis') . '.pdf';
+	$patient_data['file_name'] = $file_name;
+	$api_data = array(
+		'command'		=> 'update_income_proof',
+		'patient' 		=> $_SESSION['PLP']['patient']->PatientID,
+		'access_code'	=> $_SESSION['PLP']['access_code'],
+		'data'			=> $patient_data,
+		'by'			=> (isset($_SESSION['PLP']['rxi_user']['id']) && $_SESSION['PLP']['rxi_user']['id'] > 0) ? $_SESSION['PLP']['rxi_user']['id'] : -1
+	);
+	
+	//// for RXI rebuild
+	//$cu = curl_init();					
+	//curl_setopt_array($cu, array(
+	//	CURLOPT_URL => "http://64.233.245.241:43444/webservice/patients/api2.php",
+	//	CURLOPT_POST => 1,
+	//	CURLOPT_POSTFIELDS => http_build_query($api_data),
+	//	CURLOPT_RETURNTRANSFER => true
+	//));
+	//$response1 = curl_exec($cu);
+	//curl_close($cu);
+
+	$response = api_command($api_data);
+
+	if (isset($response->success) && $response->success == 1) {
+		//success
+		$success = true;
+		$message = 'Thank you for submitting your documentation, a patient advocate will review it soon.';
+		//header('Location: add_income_proof.php?success=1');
+	} else {
+		//fail
+		$success = false;
+		$message = 'Action failed for unknown reasons, please try submitting the form again.';
+	}
+	
+
+} else {
+	//invalid form
+	$success = false;
+	$message = 'We only accept PDF files, please make sure it is not password protected.';
+}
+
+$arrReturn = array(
+	'success' 	=> $success,
+	'message' 	=> $message
+);
+echo json_encode($arrReturn);
+die();
+
+?>
+
+<?php include('_header.php'); ?>
+
+<div class="content">
+	<div class="container">
+		<h2>Submit Income Proof</h2>
+		<br/>
+
+		<div class="right-content">
+			&nbsp;
+		</div>
+
+		<div class="left-content">
+			<div id="fmMsg" class="<?=(($message != '' && !$success) ? 'error' : 'bold')?>"><?=$message?></div>
+
+			<?php if (!$success || $message == '') { ?>
+
+				* required fields<br/><br/>
+
+				<form id="fmIncomeProof" action="add_income_proof.php" method="post" enctype="multipart/form-data">
+					<label for="IncomeProof" class="label-long <?=((!$success) ? 'error' : '')?>">Income Proof (PDF file)*:</label>
+					<input type="file" name="IncomeProof" id="IncomeProof" value="" class="<?=((!$success) ? 'error' : '')?>" />
+					<br/><br/><br/>
+
+					<input type="submit" name="btSave" id="btSave" value="Save">
+					&nbsp;<a href="account.php">Cancel</a>
+				</form>
+			<?php } ?>
+		</div>
+
+		<div class="clear"></div>
+
+	</div>
+</div>
+
+<script type="text/javascript">
+
+jQuery().ready(function() {
+	jQuery.validator.addMethod("ascii", function(value, element) { return this.optional(element) || /^[\x00-\x7F]*$/.test(value); }, "Please insert only alphanumeric characters.");
+
+	jQuery("#fmIncomeProof").validate({
+		rules: {
+			IncomeProof: 	{ required: true, accept: "application/pdf" }
+		},
+
+		highlight: function(element) {
+			//if (jQuery(element).attr('id') != 'EmergencyContactPhone' && jQuery(element).attr('id') != 'EmergencyContact2Phone' && jQuery(element).attr('id') != 'EmergencyContact3Phone') {
+				jQuery(element).addClass("error");
+				jQuery(element.form).find("label[for=" + element.id + "]").addClass('has-error');
+			//}
+		},
+
+		unhighlight: function(element) {
+			jQuery(element).removeClass("error");
+			jQuery(element.form).find("label[for=" + element.id + "]").removeClass('has-error');
+		},
+
+		errorPlacement: function() {},
+
+		invalidHandler: function() {
+			jQuery('#fmMsg').addClass('has-error').addClass('no-bold').html('Please fill out correctly all the fields marked with red and then try again to submit the form.<br/><br/><br/>');
+		}
+	});
+});
+
+</script>
+
+<?php include('_footer.php'); ?>

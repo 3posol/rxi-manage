@@ -1,0 +1,154 @@
+<?php
+
+require_once('includes/functions.php');
+
+session_start();
+
+//check login
+$patient_logged_in = is_patient_logged_in();
+if (!$patient_logged_in) {
+	header('Location: login.php');
+}
+
+$modified_items = filter_input(INPUT_POST, "modified_items", FILTER_SANITIZE_MAGIC_QUOTES, array('options' => array('default' => '')));
+
+//get data
+$data = array(
+	'command'		=> 'get_medication_and_providers',
+	'patient' 		=> $_SESSION['PLP']['patient']->PatientID,
+	'access_code'	=> $_SESSION['PLP']['access_code']
+);
+
+$rxi_data = api_command($data);
+
+// attach med to doc
+$m_data = array(
+	'MedAssistDetailID'		=> 0,
+	'DrugAppliedFor' 		=> '',
+	'Dosage' 				=> '',
+	'Directions' 			=> '',
+	'ProviderId' 			=> 0,
+	'PrvFirstName'			=> '',
+	'PrvLastName'			=> '',
+	'PrvAddress1'			=> '',
+	'PrvAddress2'			=> '',
+	'PrvCity'				=> '',
+	'PrvState'				=> '',
+	'PrvZip'				=> '',
+	'PrvWorkPhone'			=> '',
+	'PrvFaxNumber'			=> '',
+	'PrvForFuture'			=> '',	
+	'MedPrvForFuture'		=> 0
+);
+
+$data = array();
+foreach ($rxi_data->providers as $provider) {
+	$data[] = (array) $provider;
+}
+
+$success = true;
+$message = '';
+$fields_to_update = array('PrvPracticeName', 'PrvAddress1', 'PrvAddress2', 'PrvCity', 'PrvState', 'PrvZip', 'PrvWorkPhone', 'PrvFaxNumber', 'PrvForFuture');
+
+
+$form_valid = true;
+
+$modified_items_arr = array_filter(explode(',', $modified_items), create_function('$value', 'return $value !== "";'));
+
+//prepare & validate data
+foreach ($data as $key => $provider) {
+	//if (in_array($key, $modified_items_arr)) {
+	if ( $provider['PrvProviderId'] == $_POST['PrvProviderId'][0] ) { // added on 01 May 2019
+		foreach ($fields_to_update as $field_name) {
+			$data[$key][$field_name] = (isset($_POST[$field_name][0])) ? trim($_POST[$field_name][0]) : '';
+
+			//check if valid
+			$form_valid = ($form_valid) ? ($data[$key][$field_name] != '') : $form_valid;
+		}
+	} else {
+		unset($data[$key]);
+	}
+}
+
+//for encoding
+$encode_key = pack('H*', md5($_SESSION['PLP']['patient']->PatientID));
+$iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_CFB);
+$iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
+
+//encode data
+$providers_data = array();
+foreach ($data as $key => $provider) {
+	foreach ($provider as $property => $value) {
+		$providers_data[$key][$property] = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $encode_key, $value, MCRYPT_MODE_CFB, $iv));
+	}
+}
+
+$providers_data['iv'] = base64_encode($iv);
+
+//prepare & validate data (Medication)
+foreach ($m_data as $key => $value) {
+	$mdata[$key] = (isset($_POST[$key][0])) ? trim($_POST[$key][0]) : '';
+}
+//encode data
+$meds_data = array();
+foreach ($mdata as $property => $value) {
+	if($property=='ProviderId'){
+		$value = $_POST['PrvProviderId'][0];		
+	}
+	$meds_data[(int) $mdata['MedAssistDetailID']][$property] = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $encode_key, $value, MCRYPT_MODE_CFB, $iv));
+}
+$meds_data['iv'] = base64_encode($iv);
+
+// call action according to selection
+if( $_POST['PrvForFuture'][0] == 'true' || ($_POST['PrvForFuture'][0] == 'false' && $_POST['MedPrvForFuture'][0] > 0 && $_POST['MedAssistDetailID'][0] == '') ){
+	// insert prov for future use
+	$command = 'update_patient_providers';
+	$data_to_save = $providers_data;
+}
+else if($_POST['PrvForFuture'][0] == 'false' && !isset($_POST['MedAssistDetailID'][0]) && $_POST['PrvProviderId'][0] > 0 && $_POST['DrugAppliedFor'][0] != '' && $_POST['Dosage'][0] != ''){
+	// insert new prov & med and associate them
+	//$command = 'update_patient_provs_and_meds';
+	//$data_to_save = array('prv_data' => $providers_data, 'meds_data' => $meds_data);
+	$command = 'update_patient_medication';
+	$data_to_save = $meds_data;
+}
+else if($_POST['PrvForFuture'][0] == 'false' && $_POST['MedAssistDetailID'][0] > 0){
+	// insert prov and update meds row with new prov id
+	//$command = 'update_patient_provs_and_meds';
+	//$data_to_save = array('prv_data' => $providers_data, 'meds_data' => $meds_data);
+	$command = 'update_patient_medication';
+	$data_to_save = $meds_data;
+}
+else{
+	die('Error');
+}
+
+//echo $command; print_r($data_to_save); die();
+
+//send new data to RxI
+$api_data = array(
+	'command'		=> $command,
+	'patient' 		=> $_SESSION['PLP']['patient']->PatientID,
+	'access_code'	=> $_SESSION['PLP']['access_code'],
+	'data'			=> $data_to_save,
+	'by'			=> (isset($_SESSION['PLP']['rxi_user']['id']) && $_SESSION['PLP']['rxi_user']['id'] > 0) ? $_SESSION['PLP']['rxi_user']['id'] : -1
+);
+
+$response = api_command($api_data);
+
+if (isset($response->success) && $response->success == 1) {
+	//success
+	$success = true;
+	$message = 'You\'re providers updated information was saved successfully.<br/><br/><br/>';
+#			header('Location: providers.php?success=1');
+} else {
+	//fail
+	$success = false;
+	$message = 'Action failed for unknown reasons, please try submitting the form again.<br/><br/>';
+}
+
+
+
+echo json_encode($message);
+die();
+

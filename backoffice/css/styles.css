@@ -1,0 +1,178 @@
+html {
+	margin: 0;
+	padding: 0;
+	color: #000;
+	font-size: 14px;
+	background-color: #e6f1f5;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	margin: 0;
+	padding: 0;
+}
+
+.hierarchy h3 {
+	font-size: 16px;
+	line-height: 25px;
+}
+
+.hierarchy h4 {
+	padding-left: 30px;
+	font-size: 15px;
+	font-weight: normal;
+	line-height: 25px;
+}
+
+.hierarchy h5 {
+	padding-left: 60px;
+	font-size: 14px;
+	font-weight: normal;
+	line-height: 25px;
+}
+
+.hierarchy h6 {
+	padding-left: 90px;
+	font-size: 14px;
+	font-weight: normal;
+	line-height: 25px;
+}
+
+p {
+	margin: 0;
+	padding: 0;
+}
+
+input {
+	color: #000;
+}
+
+input.error {
+	color: #fff;
+	background-color: #f00;
+}
+
+label {
+	display: inline-block;
+	width: 90px;
+}
+
+label.label-long {
+	width: 150px;
+}
+
+table {
+	margin: 0;
+	padding: 0;
+	border-spacing: 0;
+	border-collapse: separate;
+}
+
+table thead tr td {
+	font-weight: bold;
+	border-bottom: 1px solid #999;
+}
+
+table thead.no-separator tr td {
+	border-bottom: 0px solid #999;
+}
+
+table tr.top-separator td {
+	border-top: 1px solid #999;
+}
+
+table td {
+	padding: 5px 10px;
+	border-left: 1px solid #999;
+}
+
+table td:first-child, table td.no-separator {
+	border-left: 0px solid #999;
+}
+
+table.no-border td {
+	padding: 5px 10px 5px 0;
+	border-width: 0px;
+}
+
+a.button {
+	padding: 2px 5px;
+	border: 1px outset #cbe4eb;
+	color: #000000;
+	text-decoration: none;
+	background-color: #f6f6f6;
+}
+
+.bg-dark-blue {
+	background-color: #cbe4eb;
+}
+
+.error {
+	color: #f00;
+}
+
+.success {
+	color: #0b0;
+}
+
+.align-left {
+	text-align: left;
+}
+
+.align-center {
+	text-align: center;
+}
+
+.align-right {
+	text-align: right;
+}
+
+.pull-left {
+	float: left;
+}
+
+.pull-right {
+	float: left;
+}
+
+.clear {
+	clear: both;
+	float: none;
+}
+
+.nobr {
+	white-space: nowrap;
+}
+
+.padding-20 {
+	padding: 10px 20px;
+}
+
+.no-bold {
+	font-weight: normal;
+}
+
+.tooltip {
+	display: block;
+	position: absolute;
+	padding: 5px;
+	margin-right: 20px;
+	background: #ffc;
+	/*z-index: 2147483640;*/
+}
+
+.header {
+	margin: 0 0 30px 0;
+	padding: 0 0 10px 0;
+	border-bottom: 1px solid #999;
+}
+
+.footer {
+	margin: 40px 0 0 0;
+	padding: 10px 0 0 0;
+	border-top: 1px solid #999;
+}
+
+.footer p {
+	color: #999;
+	font-size: 12px;
+}

@@ -1,0 +1,265 @@
+.xdebug-var-dump {
+	margin-top: 50px;
+	padding: 20px 0px 20px 0px;
+	border-top: 1px solid #eee;
+	border-bottom: 1px solid #eee;
+	background-color: #FFF8DC;
+}
+
+.no_width {
+	width: auto;
+}
+
+.no-margin {
+	margin: 0px;
+}
+
+.no-padding {
+	padding: 0px;
+}
+
+.no-show {
+	display: none;
+}
+
+.astable {
+	width: 195px !important;
+}
+
+.astable_error {
+	width: 200px !important;
+	color: #ff0000;
+	font-weight: normal;
+}
+
+.policy_subtitle {
+	display: inline;
+	text-decoration: underline;
+}
+
+p.moduleSubheader {
+	font-size: 18px;
+}
+
+a.enrollment {
+	color: #17386F; /*#DDAA07;*/
+	text-decoration: underline;
+}
+
+span.group-label {
+	display: inline-block;
+	padding: 15px 0px 0px 0px;
+	font-weight: bold;
+}
+
+img.payment_images {
+	padding-left: 300px;
+}
+
+img.trusted_logo {
+	border: 1px solid #a9a9a9;
+}
+
+label {
+	display: inline-block;
+	width: 274px;
+}
+
+label.w260 {
+	width: 260px;
+}
+
+label.w670 {
+	width: 100%;
+	max-width: 670px;
+}
+
+label.rpad15 {
+	padding-right: 15px;
+}
+
+label.error {
+	width: 100%;
+	margin-top: 2px;
+	padding-left: 280px;
+	color: #ff0000;
+	font-weight: normal;
+}
+
+label.radio-error {
+	text-align: right;
+}
+
+label.nopad-error {
+	padding-left: 0px;
+}
+
+label.big {
+	font-size: 18px;
+	width: auto;
+}
+
+input, select, textarea {
+	margin: 12px 0px 0px 0px;
+}
+
+input[type=text], select{
+	width: 100%;
+	max-width: 521px;
+}
+
+input[type=radio], input[type=checkbox] {
+	width: auto;
+	margin: 12px 0px 0px 0px !important;
+}
+
+input[type=checkbox] {
+  -ms-transform: scale(1.5); /* IE */
+  -moz-transform: scale(1.5); /* FF */
+  -webkit-transform: scale(1.5); /* Safari and Chrome */
+  -o-transform: scale(1.5); /* Opera */
+}
+
+select{
+	height: 40px;
+}
+
+input.w800 {
+	width: 100%;
+	max-width: 800px;
+}
+
+input.tmargin5 {
+	margin-top: 5px !important;
+}
+
+.medication_list {
+	width: 800px;
+}
+
+/* Tooltip   */
+
+.tooltips {
+	display: block;
+	position: absolute;
+	padding: 5px;
+	background: #ffc;
+	/*z-index: 2147483640;*/
+}
+
+/*
+#reminderPopup {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	background-color: #666;
+}
+
+#reminderPopupContent {
+	width: 700px;
+	height: auto;
+	margin: 300px auto 0px auto;
+	padding: 40px;
+	background-color: #e4dfd8;
+	border: 1px solid #999;
+	color: #000;
+}
+*/
+
+/* Leave Popup */
+
+header, .submenu-container {
+	z-index: 2000;
+}
+
+.popup {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: url('../images/transpBlack75.png');
+	z-index: 3000;
+}
+
+.leavePopupContent {
+	width: 700px;
+	height: auto;
+	margin: auto;
+	padding: 40px;
+	background: #E4dfd8;
+}
+
+.leavePopupContent form{
+	width: 100%;
+	padding-bottom: 0px;
+}
+
+.leavePopupContent textarea {
+	width: 100%;
+	height: 90px;
+}
+
+.terms_scroll_box {
+	height: 150px;
+	overflow: auto;
+}
+
+@media only screen and (max-width:1080px) {
+	/*horizontal tablet size*/
+
+	label.blank {
+		width: 100%;
+	}
+
+	label.blank {
+		width: 0px;
+	}
+
+	label.w260, label.as_block {
+		display: block;
+	}
+
+	label.big {
+		width: 85%;
+		vertical-align: top;
+	}
+
+	label.error {
+		padding-left: 0px;
+	}
+
+	label.radio-error {
+		text-align: left;
+	}
+
+	input, select, textarea {
+		margin: 5px 0px 12px 0px;
+	}
+
+	input[type=radio], input[type=checkbox] {
+		width: 13px;
+		height: 13px;
+		margin: 5px 0px 0px 0px !important;
+		border: 1px solid #333333;
+	}
+
+	input.input_zero {
+		width: 90%;
+	}
+
+	img.payment_images {
+		padding-left: 0px;
+	}
+
+}
+
+@media only screen and (max-width:860px) {
+	/*vertical table and horizontal phone sizes*/
+}
+
+@media only screen and (max-width:460px) {
+	/*vertical phone size*/
+}

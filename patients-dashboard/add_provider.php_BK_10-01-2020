@@ -1,0 +1,269 @@
+<?php
+
+require_once('includes/functions.php');
+
+session_start();
+
+//check login
+$patient_logged_in = is_patient_logged_in();
+if (!$patient_logged_in) {
+	header('Location: login.php');
+}
+
+//get providers data
+$data = array(
+	'command'		=> 'get_medication_and_providers',
+	'patient' 		=> $_SESSION['PLP']['patient']->PatientID,
+	'access_code'	=> $_SESSION['PLP']['access_code']
+);
+
+$rxi_data = api_command($data);
+
+$data = array(
+	'PrvProviderId' 		=> 0,
+	'PrvFirstName'			=> '',
+	'PrvLastName'			=> '',
+	'PrvPracticeName'		=> '',
+	'PrvAddress1'			=> '',
+	'PrvAddress2'			=> '',
+	'PrvCity'				=> '',
+	'PrvState'				=> '',
+	'PrvZip'				=> '',
+	'PrvWorkPhone'			=> '',
+	'PrvFaxNumber'			=> '',
+	'PrvPrefix'				=> '',
+	'PrvForFuture'			=> '',	// attach med to doc
+);
+// attach med to doc
+$m_data = array(
+	'MedAssistDetailID'		=> 0,
+	'DrugAppliedFor' 		=> '',
+	'Dosage' 				=> '',
+	'Directions' 			=> '',
+	'ProviderId' 			=> 0,
+	'PrvFirstName'			=> '',
+	'PrvLastName'			=> '',
+	'PrvAddress1'			=> '',
+	'PrvAddress2'			=> '',
+	'PrvCity'				=> '',
+	'PrvState'				=> '',
+	'PrvZip'				=> '',
+	'PrvWorkPhone'			=> '',
+	'PrvFaxNumber'			=> '',
+	'MedPrvForFuture'		=> 0
+);
+
+$success = true;
+$message = '';
+$pdata = array();
+$mdata = array(); 
+//prepare & validate data (Provider)
+foreach ($data as $key => $value) {
+	$pdata[$key] = (isset($_POST[$key])) ? trim($_POST[$key]) : '';
+
+	//check if valid
+#		$form_valid = ($form_valid) ? ($data[$key] != '' || in_array($key, array('PrvFirstName', 'PrvAddress2', 'PrvFaxNumber'))) : $form_valid;
+}
+
+//prepare & validate data (Medication)
+foreach ($m_data as $key => $value) {
+	$mdata[$key] = (isset($_POST[$key])) ? trim($_POST[$key]) : '';
+}
+//print_r($mdata);
+
+//for encoding
+$encode_key = pack('H*', md5($_SESSION['PLP']['patient']->PatientID));
+$iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_CFB);
+$iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
+
+//encode data
+$prv_data = array();
+//$prv_data[0]['MedAssistDetailID'] = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $encode_key, '0', MCRYPT_MODE_CFB, $iv));
+foreach ($pdata as $property => $value) {
+	$prv_data[0][$property] = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $encode_key, $value, MCRYPT_MODE_CFB, $iv));
+}
+$prv_data['iv'] = base64_encode($iv);
+
+//encode data
+$meds_data = array();
+foreach ($mdata as $property => $value) {
+	$meds_data[(int) $mdata['MedAssistDetailID']][$property] = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $encode_key, $value, MCRYPT_MODE_CFB, $iv));
+}
+$meds_data['iv'] = base64_encode($iv);
+
+// call action according to selection
+if($_POST['PrvForFuture'] == 'true'){
+	// insert prov for future use
+	$command = 'update_patient_providers';
+	$data_to_save = $prv_data;
+}
+else if($_POST['PrvForFuture'] == 'false' && $_POST['ProviderId'] == '-1' && $_POST['DrugAppliedFor'] != '' && $_POST['Dosage'] != ''){
+	// insert new prov & med and associate them
+	$command = 'update_patient_provs_and_meds';
+	$data_to_save = array('prv_data' => $prv_data, 'meds_data' => $meds_data);
+}
+else if($_POST['PrvForFuture'] == 'false' && $_POST['MedAssistDetailID'] > 0){
+	// insert prov and update meds row with new prov id
+	$command = 'update_patient_provs_and_meds';
+	$data_to_save = array('prv_data' => $prv_data, 'meds_data' => $meds_data);
+}
+else{
+	die('Error');
+}
+
+
+//send new data to RxI
+$api_data = array(
+	'command'		=> $command,
+	'patient' 		=> $_SESSION['PLP']['patient']->PatientID,
+	'access_code'	=> $_SESSION['PLP']['access_code'],
+	'data'			=> $data_to_save,
+	'by'			=> (isset($_SESSION['PLP']['rxi_user']['id']) && $_SESSION['PLP']['rxi_user']['id'] > 0) ? $_SESSION['PLP']['rxi_user']['id'] : -1
+);
+
+//print_r($api_data); die('123');
+
+$response = api_command($api_data);
+
+if (isset($response->success) && $response->success == 1) {
+	//handle medication data
+	
+	
+	//success
+	$success = true;
+	$message = 'You\'re new provider was saved successfully.<br/><br/><br/>';
+	//header('Location: providers.php?success=1');
+} else if (isset($response->success) && $response->success == 2) {
+	//handle medication data
+		
+	//success
+	$success = true;
+	$message = 'You\'re new provider was saved successfully. But some error occurred while associating medication<br/><br/><br/>';
+	//header('Location: providers.php?success=2');
+} else {
+	//fail
+	$success = false;
+	$message = 'Action failed for unknown reasons, please try submitting the form again.<br/><br/>';
+}
+die;
+?>
+
+<?php include('_header.php'); ?>
+
+<div class="content">
+	<div class="container">
+		<h2>Add New Provider</h2>
+		<br/><br/>
+
+		<div class="right-content">If any of this information is incorrect, please inform us immediately by calling a representative at 1-877-296-HOPE (4673).</div>
+
+		<div class="left-content">
+			<div id="fmMsg" class="<?=(($message != '' && !$success) ? 'error' : 'bold')?>"><?=$message?></div>
+
+			<?php if (!$success || !isset($_POST['PrvLastName'])) { ?>
+
+				<form id="fmNewProvider" action="add_provider.php" method="post">
+					<input type="hidden" name="PrvProviderId" value="-1">
+					<div class="new-provider-data">
+						<label for="PrvFirstName" class="label-long">First Name:</label>
+						<input type="text" name="PrvFirstName" id="PrvFirstName" value="<?=addslashes($data['PrvFirstName'])?>" class="" />
+						<br/><br/>
+
+						<label for="PrvLastName" class="label-long <?=((!$success && $data['PrvLastName'] == '') ? 'has-error' : '')?>">Last Name:</label>
+						<input type="text" name="PrvLastName" id="PrvLastName" value="<?=addslashes($data['PrvLastName'])?>" class="<?=((!$success && $data['PrvLastName'] == '') ? 'error' : '')?>" />
+						<br/><br/>
+
+						<label for="PrvAddress1" class="label-long <?=((!$success && $data['PrvAddress1'] == '') ? 'has-error' : '')?>">Address Line 1:</label>
+						<input type="text" name="PrvAddress1" id="PrvAddress1" value="<?=addslashes($data['PrvAddress1'])?>" class="<?=((!$success && $data['PrvAddress1'] == '') ? 'error' : '')?>" />
+						<br/><br/>
+
+						<label for="PrvAddress2" class="label-long">Address Line 2:</label>
+						<input type="text" name="PrvAddress2" id="PrvAddress2" value="<?=addslashes($data['PrvAddress2'])?>" class="" />
+						<br/><br/>
+
+						<label for="PrvCity" class="label-long <?=((!$success && $data['PrvCity'] == '') ? 'has-error' : '')?>">City:</label>
+						<input type="text" name="PrvCity" id="PrvCity" value="<?=addslashes($data['PrvCity'])?>" class="<?=((!$success && $data['PrvCity'] == '') ? 'error' : '')?>" />
+						<br/><br/>
+
+						<label for="PrvState" class="label-long <?=((!$success && $data['PrvState'] == '') ? 'has-error' : '')?>">State:</label>
+						<select name="PrvState" id="PrvState" class="<?=((!$success && $data['PrvState'] == '') ? 'error' : '')?>">
+							<option value="">...</option>
+							<?php foreach ($us_states as $state_key => $state) { ?>
+								<option value="<?=$state_key?>" <?=(($data['PrvState'] == $state_key) ? 'selected="selected"' : '')?>><?=$state?></option>
+							<?php } ?>
+						</select>
+						<br/><br/>
+
+						<label for="PrvZip" class="label-long <?=((!$success && $data['PrvZip'] == '') ? 'has-error' : '')?>">Zip Code:</label>
+						<input type="text" name="PrvZip" id="PrvZip" value="<?=addslashes($data['PrvZip'])?>" class="<?=((!$success && $data['PrvZip'] == '') ? 'error' : '')?>" />
+						<br/><br/>
+
+						<label for="PrvWorkPhone" class="label-long <?=((!$success && $data['PrvWorkPhone'] == '') ? 'has-error' : '')?>">Phone Number:</label>
+						<input type="text" name="PrvWorkPhone" id="PrvWorkPhone" value="<?=addslashes($data['PrvWorkPhone'])?>" class="<?=((!$success && $data['PrvWorkPhone'] == '') ? 'error' : '')?>" />
+						<br/><br/>
+
+						<label for="PrvFaxNumber" class="label-long">Fax Number:</label>
+						<input type="text" name="PrvFaxNumber" id="PrvFaxNumber" value="<?=addslashes($data['PrvFaxNumber'])?>" class="" />
+						<br/><br/>
+					</div>
+
+					<br/>
+					<input type="submit" name="btSave" id="btSave" value="Save">
+					&nbsp;<a href="providers.php">Cancel</a>
+
+				</form>
+
+			<?php } ?>
+
+		</div>
+
+		<div class="clear"></div>
+
+	</div>
+</div>
+
+<script type="text/javascript">
+
+jQuery().ready(function() {
+	jQuery.validator.addMethod("ascii", function(value, element) { return this.optional(element) || /^[\x00-\x7F]*$/.test(value); }, "Please insert only alphanumeric characters.");
+	jQuery.validator.addMethod("no_zero", function(value, element) { return this.optional(element) || (value != 0); }, "You must choose a provider from the drop-down.");
+
+	jQuery("#fmNewProvider").validate({
+		rules: {
+			'PrvFirstName': 		{ required: false },
+			'PrvLastName': 			{ required: true },
+			'PrvAddress1': 			{ required: true },
+			'PrvAddress2': 			{ required: false },
+			'PrvCity': 				{ required: true },
+			'PrvState':				{ required: true },
+			'PrvZip':				{ required: true, digits: true },
+			'PrvWorkPhone':			{ required: true, phoneUS: true },
+			'PrvFaxNumber':			{ required: false, phoneUS: true }
+		},
+
+		highlight: function(element) {
+			//if (jQuery(element).attr('id') != 'EmergencyContactPhone' && jQuery(element).attr('id') != 'EmergencyContact2Phone' && jQuery(element).attr('id') != 'EmergencyContact3Phone') {
+				jQuery(element).addClass("error");
+				jQuery(element.form).find("label[for=" + element.id + "]").addClass('has-error');
+			//}
+		},
+
+		unhighlight: function(element) {
+			jQuery(element).removeClass("error");
+			jQuery(element.form).find("label[for=" + element.id + "]").removeClass('has-error');
+		},
+
+		errorPlacement: function() {},
+
+		invalidHandler: function() {
+			jQuery('#fmMsg').addClass('has-error').addClass('no-bold').html('Please fill out correctly all the fields marked with red and then try again to submit the form.<br/><br/><br/>');
+		}
+	});
+
+	jQuery("input#PrvWorkPhone").mask("?999-999-9999");
+	jQuery("input#PrvFaxNumber").mask("?999-999-9999");
+});
+
+</script>
+
+<?php include('_footer.php'); ?>

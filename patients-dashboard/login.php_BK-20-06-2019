@@ -1,0 +1,316 @@
+<?php
+
+require_once('includes/functions.php');
+
+//session_set_cookie_params(0, '/', '.prescriptionhope.com');
+ini_set('session.cookie_domain', '.prescriptionhope.com' );
+session_start();
+unset($_SESSION['PLP']);
+//session_destroy();
+
+//RxI check
+if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], 'portal.php')) {
+	setcookie('RxI', 1);
+} elseif (!isset($_SERVER['HTTP_REFERER'])) {
+	setcookie("RxI", 0, time() - 3600);
+}
+
+$email_address = (isset($_POST['patient_email_address'])) ? strtolower(trim($_POST['patient_email_address'])) : null;
+$password = (isset($_POST['patient_password'])) ? trim($_POST['patient_password']) : null;
+//$recaptcha = (isset($_POST['g-recaptcha-response'])) ? trim($_POST['g-recaptcha-response']) : null;
+//$submit = (isset($_POST['patient_email_address']) && isset($_POST['patient_password']) && isset($_POST['g-recaptcha-response']));
+$submit = (isset($_POST['patient_email_address']) && isset($_POST['patient_password']));
+
+$success = true;
+$message = '';
+
+//if ($submit && $recaptcha != '') {
+if ($submit) {
+	//check re-captcha
+	//$response = json_decode(file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=6LcMlBMTAAAAAE4CYrpJI4HJuuEpE_8eWgMYuXjC&response=" . $_POST['g-recaptcha-response']));
+
+	//if ($response->success) {
+		if ($submit && $email_address != '' && $password != '') { 
+			//encode password
+			db_connect();
+			$rs = mysql_query('SELECT MD5("' . $email_address . '") as encoded_email, MD5("' . addslashes($password) . '") as encoded_password');
+			$encoded_data = mysql_fetch_assoc($rs);
+			$encoded_email = $encoded_data['encoded_email'];
+			$encoded_password = $encoded_data['encoded_password'];
+
+			//login
+			$data = array(
+				'command'		=> 'login',
+				'email_address' => $email_address,
+				'password'		=> $encoded_password,
+//				'from_rxi'		=> (isset($_COOKIE['RxI']) && $_COOKIE['RxI'] == 1) ? 1 : 0
+				'from_rxi'		=> 1
+			);
+
+			$response = api_command($data);
+
+			if (isset($response->success) && $response->success == 1) {  
+				//success
+				if (session_id() == '') {
+					session_start();
+				}
+
+				$_SESSION['PLP']['patient'] = $response->patient; 
+				clear_patient_last_name();
+
+				$_SESSION['PLP']['patient_general_message'] = isset($response->patient_general_message) ? $response->patient_general_message : '';
+				$_SESSION['PLP']['patient_general_message_title'] = isset($response->patient_general_message_title) ? $response->patient_general_message_title :
+				 '' ;
+
+				//$_SESSION['PLP']['access_code'] = $encoded_email;
+				if(isset($_SESSION['PLP']['patient']->account_username)){
+					$_SESSION['PLP']['access_code'] = md5($_SESSION['PLP']['patient']->account_username);
+				}
+
+				$_SESSION['PLP']['rxi_user'] = array(
+					'id' 	=> (isset($response->rxi_user->id)) ? (int) $response->rxi_user->id: 0,
+					'name' 	=> (isset($response->rxi_user->name)) ? $response->rxi_user->name: ''
+				);
+
+				$_SESSION['PLP']['patient_price_point'] = isset($response->patient_general_message) ? $response->patient_price_point : '';
+
+				//enrollment form account logins
+				$_SESSION['PLP']['enrollment_form_account'] = (isset($response->enrollment_form_account)) ? true : false;
+
+				if ($response->patient->account_activated == 2 && !$_SESSION['PLP']['enrollment_form_account']) { 
+					header('Location: change_password.php');
+				} else {
+					if(isset($response->enrollment_form_account) && $response->enrollment_form_account==1){
+						
+						unset($_SESSION['PLP']);
+						unset($_SESSION['PHEnroll']);
+		
+						$_SESSION['PHEnroll']['data'] = (array) $response->patient;
+						$_SESSION['PHEnroll']['incomplete_application'] = ! (bool) $response->incomplete_application;
+						//$_SESSION['PHEnroll']['access_code'] = $encoded_email;
+						$_SESSION['PHEnroll']['access_code'] = md5($_SESSION['PHEnroll']['data']['email']);
+						if( $response->account_activated == 2 ){
+							header('Location: ../enrollment/change_password.php');
+						}
+						else {
+							header('Location: ../enrollment/success.php');
+						}
+					}
+					else{ //die('here333');
+						header('Location: dashboard.php');
+					}					
+				}
+			} elseif (isset($response->success) && $response->success == 2) { 
+				//enrollment form login
+				if (session_id() == '') {
+					session_start();
+				}
+
+				//
+				unset($_SESSION['PLP']);
+				unset($_SESSION['PHEnroll']);
+
+				$_SESSION['PHEnroll']['data'] = (array) $response->patient;
+				$_SESSION['PHEnroll']['incomplete_application'] = ! (bool) $response->incomplete_application;
+				//$_SESSION['PHEnroll']['access_code'] = $encoded_email;
+				$_SESSION['PHEnroll']['access_code'] = md5($_SESSION['PHEnroll']['data']['email']);
+
+				if( $response->account_activated == 2 ){
+					header('Location: ../enrollment/change_password.php');
+				}
+				else { 
+					header('Location: ../enrollment/enroll.php');
+				}				
+			} else {
+				//login fail
+				$success = false;
+				$message = 'Login failed, please try again.<br/><br/>';
+			}
+		} elseif ($submit) {
+			//invalid form
+			$success = false;
+			$message = 'Login failed, please try again.<br/><br/>';
+		}
+	//} else {
+		//not human
+	//	$success = false;
+	//	$message = 'Please try again after you verify that you are human.<br/><br/>';
+	//}
+} elseif ($submit) {
+	//not human
+	$success = false;
+	$message = 'Please try again after you fill out the login form.<br/><br/>';
+}
+
+?>
+
+<?php include('_header.php'); ?>
+
+<div class="row no-margin">
+
+	<div class="col-md-7 noMobile">
+
+		<div class="loginLeft">
+
+			<div class="content-box">
+
+				<div class="row" style="display: inline; padding-right:0px !important;">
+
+					<div class="col-sm-3 shield"><img src="images/sheild.png"/></div>
+
+					<div class="col-sm-9" style="line-height: 28px;padding-top:13px;padding-right:0px !important;">
+						Our secure patient login protects your private information with 256-bit encryption, while allowing you to manage important information about your account.
+					</div>
+
+				</div>
+
+			</div>
+
+			<br class="noMobile">
+
+			<div class="row no-row-gutter" style="display: inline; text-align: center;">
+
+				<div class="col-sm-4">
+					<a class="homeBox homeBlueBox boxInactive accountIconBg stop-link no-hover">My Account</a>
+					<br class="noMobile"><br class="noMobile">
+
+					<div class="homeBoxList">
+						<img src="images/bluecheck.png"> Manage Billing & Payments<br>
+						<img src="images/bluecheck.png"> Manage Contact Information<br>
+						<img src="images/bluecheck.png"> Securely Upload Documents
+					</div>
+
+				</div>
+
+				<div class="col-sm-4">
+					<a class="homeBox homeBlueBox boxInactive medIconBg stop-link no-hover">My Medication</a>
+					<br class="noMobile"><br class="noMobile">
+
+					<div class="homeBoxList">
+						<img src="images/bluecheck.png"> Add Medications<br>
+						<img src="images/bluecheck.png"> Manage Your Medications<br>
+						<img src="images/bluecheck.png"> Updates & Reminders
+					</div>
+
+				</div>
+
+				<div class="col-sm-4">
+					<a class="homeBox homeBlueBox boxInactive providerIconBg stop-link no-hover">My Healthcare Providers</a>
+					<br class="noMobile"><br class="noMobile">
+
+					<div class="homeBoxList">
+						<img src="images/bluecheck.png"> Add Providers<br>
+						<img src="images/bluecheck.png"> Manage Providers<br>
+						<img src="images/bluecheck.png"> Updates & Reminders
+					</div>
+				</div>
+
+
+			</div>
+
+		</div>
+
+	</div>
+
+	<div class="col-md-5 loginRight">
+		<div class="loginPanel">
+			<h2>Patient Login</h2>
+			<font class="medium">
+			Welcome to the nation's fastest growing pharmaceutical program where you can get the medication you need at a price you can afford!
+			</font>
+
+			<br><br>
+
+			<form id="fmLogin" method="POST">
+				<label for="patient_email_address" class="<?=((!$success) ? 'error' : '')?>">Username* <font style="font-weight:200;">(Email Address)</font></label><br>
+				<input type="text" name="patient_email_address" id="patient_email_address" value="<?=$email_address?>" class="full-width <?=((!$success) ? 'error' : '')?>">
+				<br/><br/>
+
+				<label for="patient_password" class="<?=((!$success) ? 'error' : '')?>">Password*</label><br>
+				<input type="password" name="patient_password" id="patient_password" value="<?=$password?>" class="full-width <?=((!$success) ? 'error' : '')?>">
+				<br/><br/>
+
+				<?php /*
+				<label class="mobile-hidden">&nbsp;</label>
+				<div class="g-recaptcha" data-sitekey="6LcMlBMTAAAAAELY8XpXb9XatUh42-i_bgjvmc49"></div>
+				<br/><br/>
+				<?php */ ?>
+
+				<div class="row">
+					<div class="col-sm-5">
+					<input type="submit" name="login_submit" id="btSubmit" value="Login">
+					</div>
+					<div class="col-sm-7" style="padding-top:10px;">
+					<button type="button" class="big-button gray-button loginPageButton border-radius-5" onClick="window.location.href='register.php';">Create Account</button>
+					</div>
+				</div>
+
+				<br/>
+
+				<center>
+
+				<label class="mobile-hidden">&nbsp;</label>
+				<!--<a href="forgot_password.php">Forgot Your Password?</a>-->
+				<a href="/html/enrollment/forgot_password.php">Forgot Your Password?</a>
+				
+				</center>
+
+				<br/>
+				<div id="fmMsg" class="<?=(($message != '') ? 'error' : '')?>"><?=$message?></div>
+
+				<div class="row">
+					<div class="col-sm-7 loginNotEnrolled">
+					<i class="medium">Not Enrolled in Prescription Hope?</i>
+					</div>
+					<div class="col-sm-5" style="padding-top:7px;">
+					<button type="button" class="big-button blue-button loginPageButton border-radius-5" onClick="window.location.href='https://manage.prescriptionhope.com/register.php';">Enroll Today</button>
+					</div>
+				</div>
+
+				<br/>
+				<br/>
+
+
+			</form>
+
+		</div>
+
+	</div>
+
+</div>
+
+<?php
+    //
+    //SalesForce Conversion Tracking
+    //
+	$page_id = '5';
+	$page_alias = 'Acount Login';
+
+    $SFJobID = (isset($_COOKIE['SFJobID'])) ? $_COOKIE['SFJobID'] : '';
+    $SFSubscriberID = (isset($_COOKIE['SFSubscriberID'])) ? $_COOKIE['SFSubscriberID'] : '';
+    $SFListID = (isset($_COOKIE['SFListID'])) ? $_COOKIE['SFListID'] : '';
+    $SFUrlID = (isset($_COOKIE['SFUrlID'])) ? $_COOKIE['SFUrlID'] : '';
+    $SFMemberID = (isset($_COOKIE['SFMemberID'])) ? $_COOKIE['SFMemberID'] : '';
+    $SFJobBatchID = (isset($_COOKIE['SFJobBatchID'])) ? $_COOKIE['SFJobBatchID'] : '';
+
+    if ($SFJobID != '' && $SFSubscriberID != '' && $SFListID != '' && $SFUrlID != '' && $SFMemberID != '') {
+        $SFConversionPixel = '<img src=\'http://click.exacttarget.com/conversion.aspx?xml=';
+        $SFConversionPixel .= '<system><system_name>tracking</system_name><action>conversion</action>';
+        $SFConversionPixel .= '<member_id>'.$SFMemberID.'</member_id>';
+        $SFConversionPixel .= '<job_id>'.$SFJobID.'</job_id>';
+        $SFConversionPixel .= '<email></email>';
+        $SFConversionPixel .= '<sub_id>'.$SFSubscriberID.'</sub_id>';
+        $SFConversionPixel .= '<list>'.$SFListID.'</list>';
+        $SFConversionPixel .= '<original_link_id>'.$SFUrlID.'</original_link_id>';
+        $SFConversionPixel .= '<BatchID>'.$SFJobBatchID.'</BatchID>';
+        $SFConversionPixel .= '<conversion_link_id>'.$page_id.'</conversion_link_id>';
+        $SFConversionPixel .= '<link_alias>'.$page_alias.'</link_alias><display_order>'.$page_id.'</display_order>';
+        $SFConversionPixel .= '<data_set></data_set>';
+        $SFConversionPixel .= '</system>\'';
+        $SFConversionPixel .= ' width="1" height="1">';
+
+        echo $SFConversionPixel;
+    }
+?>
+
+<?php include('_footer.php'); ?>

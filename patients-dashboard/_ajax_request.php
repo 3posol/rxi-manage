@@ -1,0 +1,110 @@
+<?php
+
+require_once('includes/functions.php');
+
+$action = (isset($_REQUEST['action'])) ? addslashes($_REQUEST['action']) : '';
+$data = (isset($_REQUEST['data'])) ? $_REQUEST['data'] : array();
+
+switch ($action) {
+	case 'portal_tour':
+		if($data==1){
+			$data = array(
+				'command' => 'update_tour_flag',
+				'data'	  => array( 'flag'=>$data, 'id' => $_REQUEST['id'])
+			);
+			$response = api_command($data);// print_r($response); die;
+			echo json_encode($response);
+		}
+		break;
+	case 'save_meta_data':
+		parse_str($data, $input_data);
+		if (isset($input_data['type']) && $input_data['type']!='') {
+			$data = array(
+				'command' => 'save_meta_data',
+				'data'	  => $input_data
+			);
+
+			$response = api_command($data);// print_r($response); die;
+			echo json_encode($response);
+		}
+
+		break;
+	
+	case 'save_profile_image':		
+		if($_FILES["profile_image"] && $_POST['p_id']){
+			$image_error = '';
+			$image_success = '';
+			$files = $_FILES["profile_image"];
+			$type = 'success';
+			$msg = '';
+			// check type of file uploaded
+			if( in_array($files['type'], array('image/png','image/jpg','image/jpeg','image/gif')) ){
+				if($files['size'] <= (2*1024*1024) ){	// 2MB
+					$tmp_name = $files['tmp_name'];
+					$name = rand(10,100).'_'.$files['name'];
+					$uploads_dir = $_SERVER['DOCUMENT_ROOT'].'/patients-dashboard/patient_images'; //echo $uploads_dir; die('==');
+					if(move_uploaded_file($tmp_name, "$uploads_dir/$name")){
+						$data = array(
+							'command'	=> 'save_meta_data',
+							'data' 		=> array('type'=>'profile_image','value'=>$name, 'id'=>$_POST['p_id'])
+						);			
+						$response = api_command($data);						
+						if($response->success==1){
+							$response = array('type'=>'success', 'msg'=>'Successfully changed your profile image');
+						}
+						else if($response->success==2){
+							$response = array('type'=>'danger', 'msg'=>'Something went wrong, unable to set this as your profile image.');
+						}
+						else if($response->success==0){
+							$response = array('type'=>'danger', 'msg'=>'Something went wrong, please try after sometime.');
+						}						
+					}
+					else{
+						$response = array('type'=>'danger', 'msg'=>'Something went wrong.');
+					}
+				}
+				else{
+					$response = array('type'=>'danger', 'msg'=>'Please upload image upto 8KB in size');
+				}
+			}
+			else{
+				$response = array('type'=>'danger', 'msg'=>'Allowed extensions are PNG, JPEG, JPG, GIF');
+			}
+
+			echo json_encode($response);
+		}
+		break;
+	case 'reapply':
+		if($_REQUEST['type']!='' && $_REQUEST['type']=='closed'){
+			$data = array(
+				'command'	=> 'patient_reapply',
+				'data' 		=> array(
+								'type' 			=> 'closed',
+								'patient' 		=> $_REQUEST['pid'],
+								'email' 		=> $_REQUEST['email'],								
+							)
+			);
+			
+			$response = api_command($data);
+			if($response->success==1){
+				if(isset($response->applicant) && $response->applicant>0){
+					// unset the session values and set it to new 
+					unset($_SESSION['PLP']);
+					unset($_SESSION['PHEnroll']);
+					$_SESSION['PHEnroll']['data']['id'] = $response->applicant;
+					$_SESSION['PHEnroll']['access_code'] = md5($response->data->email); //print_r($_SESSION); die;
+					$_SESSION['PHEnroll']['incomplete_application'] = true;
+					$response = array('success' => 1);
+				} else {
+					$response = array('success' => 0,'msg'=>'Unable to process your request, try after sometime.');
+				}
+			}
+			else {
+				$response = array('success' => 0,'msg'=>'Unable to process your request, try after sometime.');
+			}
+			echo json_encode($response);
+		}
+		break;
+}
+
+die();

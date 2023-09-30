@@ -1,0 +1,89 @@
+/*
+ * Default jvFloat theme.
+ * modify it as you wish!
+ */
+
+.jvFloat {
+	position: relative;
+	display: block;
+	/*margin-top: 1em;*/
+}
+
+.jvFloat .placeHolder.required {
+	color: red;
+}
+
+/* Start CSS3 Animations on supported browser */
+.jvFloat .placeHolder {
+	position: absolute;
+	top: 16px; 
+	left: 11px;
+	width: auto;
+	color: #54646f;
+	font-size: 16px;
+	font-weight: normal;
+	-webkit-transform: translate(0, 0);
+	-moz-transform: translate(0, 0);
+	-o-transform: translate(0, 0);
+	-ms-transform: translate(0, 0);
+	transform: translate(0, 0);
+	-webkit-transition: -webkit-transform 150ms, opacity 100ms, visibility 100ms;
+	transition: transform 150ms, opacity 100ms, visibility 100ms;
+	/*opacity: 0;*/
+	opacity: 1;
+	/*visibility: hidden;*/
+	visibility: visible;
+	white-space: nowrap;
+	z-index: 100;
+}
+
+/*Allows textarea floating placeholder to be positioned distinctly from the normal .placeHolder class
+ * This is required when working with Multiline text areas
+ */
+.jvFloat .placeHolder.textarea {
+	/*top: 0px;*/
+}
+
+.jvFloat .placeHolder.active {
+	display: block;
+	color: #59afe5;
+	font-size: 12px;
+	visibility: visible;
+	-webkit-transform: translate(0, -0.75em);
+	-moz-transform: translate(0, -0.75em);
+	-o-transform: translate(0, -0.75em);
+	-ms-transform: translate(0, -0.75em);
+	transform: translate(0, -0.75em);
+	-webkit-transition: -webkit-transform 100ms, opacity 120ms, visibility 120ms;
+	transition: transform 100ms, opacity 120ms, visibility 120ms;
+	opacity: 1;
+	top:9px;
+}
+
+.jvFloat input.not-empty, .jvFloat select.not-empty, .jvFloat textarea.not-empty {
+	padding: 20px 10px 6px 10px;
+	-webkit-transform: padding 120ms ease-out;
+	-moz-transform: padding 120ms ease-out;
+	-o-transform: padding 120ms ease-out;
+	-ms-transform: padding 120ms ease-out;
+	transform: padding 120ms ease-out;
+}
+/* End CSS3 */
+
+/* Legacy browser */
+/*.jvFloat .placeHolder {
+	position: absolute;
+	top: -1em;
+	left: 0;
+	color: #0c61fc;
+	font-size: .85em;
+	font-weight: bold;
+	opacity: 0;
+	visibility: hidden;
+}
+.jvFloat .placeHolder.active {
+	display: block;
+	visibility: visible;
+	opacity: 1;
+}*/
+/* End Legacy */

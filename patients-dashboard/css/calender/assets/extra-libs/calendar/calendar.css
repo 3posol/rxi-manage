@@ -1,0 +1,174 @@
+@import url('https://fonts.googleapis.com/css?family=Poppins:300,400,500,500i,600,600i,700,900&display=swap');
+.fc-state-default {
+    text-shadow: none;
+    box-shadow: none;
+}
+
+.fc-basic-view .fc-body .fc-row {
+    min-height: 5rem;
+}
+
+
+
+.fc-toolbar .fc-button {
+    background: #2961ff;
+    color: #fff;
+    border: none;
+}
+
+.fc-toolbar .fc-button:hover {
+    background: #2961ff;
+    opacity: 1;
+}
+
+.fc-toolbar .fc-button.fc-state-active {
+    background: #fff;
+    color: #2961ff;
+}
+
+
+
+.fc-widget-content {
+    border-color: rgba(120, 130, 140, 0.13) !important;
+}
+
+.fc-widget-content tr {
+    border-bottom: none;
+}
+
+
+.fc-view {
+    margin-top: 0px;
+}
+
+.fc-toolbar {
+    margin: 0px;
+    padding: 24px 0px;
+}
+
+
+.fc-event {
+    border-radius: 0px;
+    border: none;
+    cursor: move;
+    color: #fff !important;
+    font-size: 13px;
+    margin: 1px -1px 0 -1px;
+
+    padding: 5px 5px;
+    text-align: center;
+    background: #40c4ff;
+}
+button.fc-today-button.fc-button.fc-state-default.fc-corner-left.fc-corner-right.fc-state-disabled {
+    display: none;
+}
+
+.fc-month-button, .fc-agendaWeek-button, .fc-agendaDay-button{display:none;}
+button.fc-next-button.fc-button.fc-state-default.fc-corner-right {
+    position: absolute;
+    right: 30px;
+	background: transparent;
+    color: #8D8D8D;
+    border: 1px solid #8D8D8D;
+    border-radius: 100%;
+    width: 34px;
+    height: 34px;
+}
+button.fc-prev-button.fc-button.fc-state-default.fc-corner-left {
+    position: absolute;
+    left: 30px;
+	background: transparent;
+    color: #8D8D8D;
+    border: 1px solid #8D8D8D;
+    border-radius: 100%;
+    width: 34px;
+    height: 34px;
+}
+.fc-view.fc-month-view.fc-basic-view {
+  
+	padding:0px;
+}
+td.fc-head-container.fc-widget-header {
+    padding: 10px;
+    background: #fff;
+}
+.fc-toolbar h2 {
+    margin: 0;
+    color: #3E4F5A;
+  font-family: 'Poppins', sans-serif;
+    font-size: 27px;
+    font-weight: 500;
+}
+th.fc-day-header span {
+    color: #5F6B74;
+  font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 29px;
+    text-transform: uppercase;
+}
+td.fc-day-top span {
+    color: #5F6B74;
+   font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    font-weight: 300;
+    line-height: 29px;
+}
+.card-body.b-l.calender-sidebar {
+    background: #fff;
+	border: 1px solid#d7d7d7;
+	margin: 50px 0;
+}
+.fc .fc-row .fc-content-skeleton table, .fc .fc-row .fc-content-skeleton td, .fc .fc-row .fc-helper-skeleton td {
+    background: 0 0;
+    border-color: #9a9a9a29;
+    background: #fff !important;
+}
+.medication_main thead{background:#fff !important;}
+th.fc-day-header.fc-widget-header.fc-sun, td.fc-day-top.fc-sun{
+    text-indent: inherit !important;
+    width: auto !important;
+}
+.fc-view.fc-month-view.fc-basic-view td.fc-widget-content {
+    padding: 0px 0 !important;
+}
+.fc td.fc-today {
+    border-style: solid !important;
+    border-left: none !important;
+}
+.fc button .fc-icon{margin:0px;}
+.fc-toolbar.fc-header-toolbar h2{	color: #3E4F5A !important;	font-family: 'Poppins', sans-serif;	font-size: 27px;	font-weight: 500 !important;	line-height: 0;}
+
+@media screen and (max-width: 767px){
+th.fc-day-header span {
+ 
+    text-indent: 10px !important;
+    float: left;
+    text-align: center;
+}
+.medication_main th:nth-child(3){
+    text-align: right;
+    padding: 5px 0px !important;
+    position: relative;
+    text-align: center !important;
+}}
+.fc-highlight-skeleton {
+    height: 10px;
+    position: absolute;
+    top: 60px;
+}
+.fc-highlight {
+    background: #1765ad !important;
+    opacity: 1 !important;
+    height: 20px!important;
+}
+.fc-toolbar.fc-header-toolbar h2 {
+    float: none !important;
+    width: 100%;
+    display: block;
+text-align: center;}
+
+
+.fc-toolbar .fc-left {
+    float: none;
+}

@@ -1,0 +1,105 @@
+</div>
+
+<div id="footer-wrapper">
+	<?php /* ?>
+	<div class="footer">
+	    <div class="container">
+			<div class="row no-margin">
+				<?php if (basename($_SERVER['PHP_SELF']) != 'login.php') { ?>
+					<div class="left security-text-box">
+						<div class="left security-shield noMobile">
+							<img src="images/sheild.png" style="width:60px;"/>
+						</div>
+						<div class="left security-text">
+							We keep your information 100% safe and protected. It is secured by 256-bit encryption, the same security banks use.
+						</div>
+					</div>
+				<?php } ?>
+				<div class="right security-icons <?=((basename($_SERVER['PHP_SELF']) == 'login.php') ? 'full-width' : '12')?>" style="text-align:right;">
+					<center>
+						<table width="150" border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td width="150" valign="top" style="padding-top: 15px; border-width: 0;">
+									<table width="150" border="0" cellpadding="2" cellspacing="0" title="Click to Verify - This site chose Symantec SSL for secure e-commerce and confidential communications.">
+										<tr>
+											<td width="135" align="center" valign="top"><script src="https://cdn.ywxi.net/js/inline.js?w=120"></script><!--script type="text/javascript" src="https://seal.websecurity.norton.com/getseal?host_name=www.prescriptionhope.com&amp;size=S&amp;use_flash=NO&amp;use_transparent=Yes&amp;lang=en"></script><br /><!--a href="https://www.websecurity.symantec.com/ssl-certificate" target="_blank"  style="color:#000000; text-decoration:none; font:bold 7px verdana,sans-serif; letter-spacing:.5px; text-align:center; margin:0px; padding:0px;">ABOUT SSL CERTIFICATES</a--></td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</center>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<?php */ ?>
+	<footer>
+	    <div class="container">
+	        <div class="row">
+	            <div class="col-xs-12 col-md-3 left-text">
+	                <img src="https://prescriptionhope.com/wp-content/uploads/2017/07/PH Logo White.png" width="150" height="">
+	            </div>
+
+	            <div class="col-xs-12 col-md-6 center-logo">
+	            	&nbsp;
+	            </div>
+
+	            <div class="col-xs-12 col-md-3 right-text">
+	                <a href="http://prescriptionhope.com/wp-content/uploads/2014/08/PH_PrivacyPolicy.pdf" target="_blank"><strong>Privacy Policy</strong></a> |
+	                <a href="http://prescriptionhope.com/wp-content/uploads/2014/08/PH_PrivacyPolicy.pdf" target="_blank"><strong>Terms of Use</strong></a><br/>
+	                <?=date('Y')?> Prescription Hope, Inc.
+	            </div>
+	        </div>
+	    </div>
+
+		<?php
+		    //
+		    //SalesForce Conversion Tracking
+		    //
+		    if (basename($_SERVER['PHP_SELF']) == 'register.php' || basename($_SERVER['PHP_SELF']) == 'enroll.php') {
+				$page_id = '';
+				$page_alias = '';
+			    if (basename($_SERVER['PHP_SELF']) == 'register.php') {
+					$page_id = '2';
+					$page_alias = 'Create Account Page';
+			    } elseif(basename($_SERVER['PHP_SELF']) == 'enroll.php') {
+					$page_id = '3';
+					$page_alias = 'Create Account - Incomplete Application';
+				}
+
+		        $SFJobID = (isset($_COOKIE['SFJobID'])) ? $_COOKIE['SFJobID'] : '';
+		        $SFSubscriberID = (isset($_COOKIE['SFSubscriberID'])) ? $_COOKIE['SFSubscriberID'] : '';
+		        $SFListID = (isset($_COOKIE['SFListID'])) ? $_COOKIE['SFListID'] : '';
+		        $SFUrlID = (isset($_COOKIE['SFUrlID'])) ? $_COOKIE['SFUrlID'] : '';
+		        $SFMemberID = (isset($_COOKIE['SFMemberID'])) ? $_COOKIE['SFMemberID'] : '';
+		        $SFJobBatchID = (isset($_COOKIE['SFJobBatchID'])) ? $_COOKIE['SFJobBatchID'] : '';
+
+		        if ($SFJobID != '' && $SFSubscriberID != '' && $SFListID != '' && $SFUrlID != '' && $SFMemberID != '') {
+		            $SFConversionPixel = '<img src=\'http://click.exacttarget.com/conversion.aspx?xml=';
+		            $SFConversionPixel .= '<system><system_name>tracking</system_name><action>conversion</action>';
+		            $SFConversionPixel .= '<member_id>'.$SFMemberID.'</member_id>';
+		            $SFConversionPixel .= '<job_id>'.$SFJobID.'</job_id>';
+		            $SFConversionPixel .= '<email></email>';
+		            $SFConversionPixel .= '<sub_id>'.$SFSubscriberID.'</sub_id>';
+		            $SFConversionPixel .= '<list>'.$SFListID.'</list>';
+		            $SFConversionPixel .= '<original_link_id>'.$SFUrlID.'</original_link_id>';
+		            $SFConversionPixel .= '<BatchID>'.$SFJobBatchID.'</BatchID>';
+		            $SFConversionPixel .= '<conversion_link_id>'.$page_id.'</conversion_link_id>';
+		            $SFConversionPixel .= '<link_alias>'.$page_alias.'</link_alias><display_order>'.$page_id.'</display_order>';
+		            $SFConversionPixel .= '<data_set></data_set>';
+		            $SFConversionPixel .= '</system>\'';
+		            $SFConversionPixel .= ' width="1" height="1">';
+
+		            echo $SFConversionPixel;
+		        }
+		    }
+		?>
+	</footer>
+</div>
+
+</div>
+
+</body>
+</html>

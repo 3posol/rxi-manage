@@ -1,0 +1,2379 @@
+// Listen for resize changes
+window.addEventListener("resize", function() {
+	jQuery(".tooltip-new").remove();
+}, false);
+
+function getAge(dateString) {
+    var today = new Date();
+    var birthDate = new Date(dateString);
+    var age = today.getFullYear() - birthDate.getFullYear();
+    var m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+
+    return age;
+}
+
+function isAscii(str) {
+	return /^[\x00-\x7F]*$/.test(str);
+}
+
+/*
+*
+* Sets the values for all the current page form elements that have attribute preload set
+* - only for radio buttons and select objects
+*
+*/
+function preloadSpecialFormValues() {
+	//pre-check radio buttons
+	jQuery(":input[preload]").each(function() {
+		//input objects
+		if (jQuery(this).is("input") && jQuery(this).attr('type') == 'radio' && jQuery(this).attr('preload') != '') {
+			jQuery("input[name=" + jQuery(this).attr('name') + "][value=" + jQuery(this).attr('preload') + "]").attr('checked', 'checked');
+
+			if (jQuery(this).attr('name') == 'p_medicare'  || jQuery(this).attr('name') == 'p_medicaid' || jQuery(this).attr('name') == 'p_lis') {
+				show2ndLevelInsuranceQuestions(null);
+			}
+
+			if (jQuery(this).attr('name') == 'p_payment_method') {
+				showSelectedPaymentMethods();
+			}
+		}
+
+		//select objects
+		if (jQuery(this).is("select")) {
+			jQuery(this).val(jQuery(this).attr('preload'));
+		}
+	});
+}
+
+/*
+*
+* A helper for jQuery Validation to place the errors related to radio buttons or checkboxes after the last input's label
+*
+*/
+function jQueryValidation_ShowErrors (error, element) {
+	switch (element.attr('type')) {
+		case 'checkbox':
+			if (error.attr("for") == 'p_payment_agreement' || error.attr("for") == 'p_service_agreement' || error.attr("for") == 'p_guaranty_agreement' || error.attr("for") == 'p_acknowledge_agreement') {
+				error.addClass("nopad-error");
+			}
+
+			//error.insertAfter(jQuery("label[for=" + element.attr("id") + "]").last());
+			break;
+
+		case 'radio':
+			if (error.attr("for") != 'p_is_minor' && error.attr("for") != 'p_gender' && error.attr("for") != 'p_payment_method') {
+				error.addClass("radio-error");
+			}
+
+			if (error.attr("for") != 'p_payment_method') {
+				//error.insertAfter(jQuery("label[for=" + jQuery("input[name=" + element.attr("name") + "]").last().attr('id') + "]").last());
+			} else {
+				//error.insertAfter(jQuery("img[class=payment_images]").last());
+				error.addClass("nopad-error");
+				error.attr("style", "display: block; width: auto;");
+				//error.insertAfter(jQuery("label[for='p_payment_method']"));
+			}
+
+			break;
+
+		default:
+			if (error.attr("for") == 'p_hear_about' || error.attr("for") == 'p_hear_about_1' || error.attr("for") == 'leave_reason') {
+				//error.addClass("nopad-error");
+			}
+
+			error.addClass("invalid-field");
+			error.insertAfter(element);
+	}
+
+	refreshRadioGroupsValidationIcons();
+}
+
+function jQueryValidation_Highlight (element) {
+	//if (!jQuery(element).hasClass('dr-data')) {
+		switch (jQuery(element).attr('type')) {
+			case 'checkbox':
+				jQuery(element).addClass("error");
+				if (jQuery(element).attr('name').substr(0, 6) != 'p_has_') {
+					jQuery(element).parent().parent().removeClass('checkbox-with-label-correct2');
+					jQuery(element).parent().parent().removeClass('checkbox-with-label-correct3');
+
+					if (jQuery(element).attr('name') == 'p_income_zero') {
+						jQuery(element).parent().parent().addClass('checkbox-with-label-error3');
+					} else {
+						jQuery(element).parent().parent().addClass('checkbox-with-label-error2');
+					}
+				}
+				break;
+
+			case 'radio':
+				jQuery(element).addClass("error");
+
+				jQuery("#valid-" + jQuery(element).attr("name")).remove();
+
+				radio_bt = jQuery("input[name=" + jQuery(element).attr("name") + "]").last();
+				label_elem = jQuery('label[for="' + radio_bt.attr('id') + '"]').last();
+				//last_radio_elem = jQuery("label[for=" + jQuery(last_radio).attr("id") + "]").last();
+
+				pos = jQuery(label_elem).position();
+				//error_left = last_radio.outerWidth() + 10;
+				error_left = ((pos.left - 170) > 0) ? pos.left - 170 : 0;
+				error_left = (error_left < 5 && jQuery(window).width() <= 1024) ? 5 : error_left;
+
+				error_elem = jQuery("<div id='valid-" + jQuery(element).attr("name") + "' class='radio-with-error'>This field is required</div>")
+					//.css("top", (pos.top - 1) + "px")
+					//.css("top", "17%")
+					//.css("left", error_left + "px")
+					//.css("left", "-185px")
+					.fadeIn("fast");
+
+				if (jQuery(window).width() <= 1024) {
+					//error_elem.css('left', '-31px !important').css("padding-top", "25px");
+				}
+
+				//jQuery("#register_form").append(error_elem);
+				//label_elem.append(error_elem);
+				jQuery(error_elem).insertAfter(label_elem);
+
+				break;
+
+			default:
+				jQuery(element).removeClass("correct");
+				jQuery(element).removeClass("field-error-only");
+				jQuery(element).addClass("error");
+				if (jQuery(element).hasClass('input_zero')) {
+			    	jQuery('label.' + jQuery(element).attr('id')).remove();
+				}
+		}
+	//}
+
+	refreshRadioGroupsValidationIcons();
+}
+
+function jQueryValidation_Unhighlight (element) {
+	//if (!jQuery(element).hasClass('dr-data')) {
+		switch (jQuery(element).attr('type')) {
+			case 'checkbox':
+				jQuery(element).removeClass("error");
+
+				if (jQuery(element).attr('name').substr(0, 6) != 'p_has_') {
+					jQuery(element).parent().parent().removeClass('checkbox-with-label-error2');
+					jQuery(element).parent().parent().removeClass('checkbox-with-label-error3');
+
+					if (jQuery(element).attr('name') == 'p_income_zero') {
+						jQuery(element).parent().parent().addClass('checkbox-with-label-correct3');
+					} else {
+						jQuery(element).parent().parent().addClass('checkbox-with-label-correct2');
+					}
+				}
+				break;
+
+			case 'radio':
+				jQuery(element).removeClass("error");
+
+				jQuery("#valid-" + jQuery(element).attr("name")).remove();
+
+				radio_bt = jQuery("input[name=" + jQuery(element).attr("name") + "]").first();
+				label_elem = jQuery('label[for="' + radio_bt.attr('id') + '"]').first();
+				//last_radio_elem = jQuery("label[for=" + jQuery(last_radio).attr("id") + "]").last();
+				pos = jQuery(label_elem).position();
+				//error_left = last_radio.outerWidth() + 10;
+				error_left = ((pos.left - 20) > 0) ? pos.left - 20 : 0;
+				error_elem = jQuery("<div id='valid-" + jQuery(element).attr("name") + "' class='radio-correct'>&nbsp;</div>")
+					//.css("top", (pos.top - 1) + "px")
+					.css("top", "-2px")
+					//.css("left", error_left + "px")
+					.css("left", "-35px")
+					.fadeIn("fast");
+
+				//jQuery("#register_form").append(error_elem);
+				label_elem.append(error_elem);
+				break;
+
+			default:
+				if (jQuery(element).hasClass('input_zero') && jQuery('label.' + jQuery(element).attr('id')).length > 0) {
+					
+				} else {
+					jQuery(element).removeClass("error");
+					jQuery(element).removeClass("field-error-only");
+					jQuery(element).removeClass("correct");
+					if (jQuery(element).val() != "") {
+						jQuery(element).addClass("correct");
+						jQuery('label.error[for="' + jQuery(element).attr('id') + '"]').remove();
+						jQuery('label.error[for="' + jQuery(element).attr('name') + '"]').remove();
+					}
+				}
+		}
+	//}
+
+	refreshRadioGroupsValidationIcons();
+}
+
+/*
+*
+* Scrolls up the page to the first invalid element
+*
+*/
+function scrollToInvalidFormElements () {
+	first_invalid_element = jQuery('input.error, select.error, textarea.error').eq(0);
+
+	//if (typeof first_invalid_element.position() != 'undefined') {
+	if (first_invalid_element) {
+		//jQuery(window).scrollTop(first_invalid_element.position().top - 250);
+		first_invalid_element.focus();
+	}
+}
+
+/*
+*
+* Activates the selected payment method set of inputs
+*
+*/
+function showSelectedPaymentMethods() {
+	//jQuery('#payment_cc').hide();
+	//jQuery('#payment_ach').hide();
+
+	//show_payment_method = jQuery('input[name=p_payment_method]').val();
+	//jQuery('#payment_' + show_payment_method).show();
+}
+
+/*
+*
+* Activates the entire patient profile
+*
+*/
+function showSelectedPatientProfile() {
+	jQuery('.patient_parent_profile').hide();
+	//jQuery('.patient_profile').hide();
+
+	if (jQuery('input[name=p_is_minor]:checked').val() == 1) {
+		jQuery('.patient_parent_profile').show();
+		//jQuery('.patient_profile').show();
+	}
+
+	if (jQuery('input[name=p_is_minor]:checked').val() == 0) {
+		//jQuery('.patient_profile').show();
+
+		//empty parent fields
+		jQuery('input[name="p_parent_first_name"]').val('');
+		jQuery('input[name="p_parent_middle_initial"]').val('');
+		jQuery('input[name="p_parent_last_name"]').val('');
+		jQuery('input[name="p_parent_phone"]').val('');
+	}
+}
+
+/*
+*
+* Activates the entire income section
+*
+*/
+function showIncomeSection() {
+	if (jQuery('input[name="p_has_income"]:checked').val() == 1) {
+        // mandatory sign show
+        jQuery('label[for="p_income_file_tax_return"]').find('span.red').show();
+		
+        jQuery('#patient_income_section').removeClass('hidden');
+		jQuery('.patient_income_yes_only').removeClass('hidden');
+
+		//see if any incomes where filled
+		if (jQuery('input[name="p_income_salary"]').val() != '' && jQuery('input[name="p_income_salary"]').val().replace(',', '') > 0) {
+			jQuery('input[name="p_has_salary"]').prop('checked', true);
+			jQuery('div.p_income_salary').removeClass('hidden');
+		}
+		if (jQuery('input[name="p_income_unemployment"]').val() != '' && jQuery('input[name="p_income_unemployment"]').val().replace(',', '') > 0) {
+			jQuery('input[name="p_has_unemployment"]').prop('checked', true).trigger('change');
+			jQuery('div.p_income_unemployment').removeClass('hidden');
+		}
+		if (jQuery('input[name="p_income_pension"]').val() != '' && jQuery('input[name="p_income_pension"]').val().replace(',', '') > 0) {
+			jQuery('input[name="p_has_pension"]').prop('checked', true).trigger('change');
+			jQuery('div.p_income_pension').removeClass('hidden');
+		}
+		if (jQuery('input[name="p_income_annuity"]').val() != '' && jQuery('input[name="p_income_annuity"]').val().replace(',', '') > 0) {
+			jQuery('input[name="p_has_annuity"]').prop('checked', true).trigger('change');
+			jQuery('div.p_income_annuity').removeClass('hidden');
+		}
+		if (jQuery('input[name="p_income_ss_retirement"]').val() != '' && jQuery('input[name="p_income_ss_retirement"]').val().replace(',', '') > 0) {
+			jQuery('input[name="p_has_ss_retirement"]').prop('checked', true).trigger('change');
+			jQuery('div.p_income_ss_retirement').removeClass('hidden');
+		}
+		if (jQuery('input[name="p_income_ss_disability"]').val() != '' && jQuery('input[name="p_income_ss_disability"]').val().replace(',', '') > 0) {
+			jQuery('input[name="p_has_ss_disability"]').prop('checked', true).trigger('change');
+			jQuery('div.p_income_ss_disability').removeClass('hidden');
+		}
+
+		updateTotalAnnualIncome();
+	}
+
+	if (jQuery('input[name="p_has_income"]:checked').val() == 0) {
+		jQuery('#patient_income_section').addClass('hidden');
+
+		//empty all income fields
+		jQuery('select[name="p_employment_status"]').val('');
+		jQuery('select[name="p_employment_status"]').trigger('blur');
+		//jQuery('select[name="p_married"]').val('');
+		jQuery('select[name="p_married"]').trigger('blur');
+		//jQuery('select[name="p_household"]').val('');
+		jQuery('select[name="p_household"]').trigger('blur');
+		//jQuery('input[name="p_income_file_tax_return"]').prop('checked', false);
+		//jQuery('input[name="p_uscitizen"]').prop('checked', false);
+		jQuery('input[name="p_medicare"]').prop('checked', false);
+		jQuery('input[name="p_medicare_part_d"]').prop('checked', false);
+		jQuery('input[name="p_medicaid"]').prop('checked', false);
+		jQuery('input[name="p_medicaid_denial"]').prop('checked', false);
+		jQuery('input[name="p_lis"]').prop('checked', false);
+		jQuery('input[name="p_lis_denial"]').prop('checked', false);
+		jQuery('input[name="p_disabled_status"]').prop('checked', false);
+		jQuery('input[name="p_has_salary"]').prop('checked', false);
+		jQuery('input[name="p_income_salary"]').val('');
+		jQuery('input[name="p_has_unemployment"]').prop('checked', false);
+		jQuery('input[name="p_income_unemployment"]').val('');
+		jQuery('input[name="p_has_pension"]').prop('checked', false);
+		jQuery('input[name="p_income_pension"]').val('');
+		jQuery('input[name="p_has_annuity"]').prop('checked', false);
+		jQuery('input[name="p_income_annuity"]').val('');
+		jQuery('input[name="p_has_ss_retirement"]').prop('checked', false);
+		jQuery('input[name="p_income_ss_retirement"]').val('');
+		jQuery('input[name="p_has_ss_disability"]').prop('checked', false);
+		jQuery('input[name="p_income_ss_disability"]').val('');
+		jQuery('input[name="p_income_annual_income"]').val('');
+
+		//remove any error/confirmation icons
+		jQuery('.patient_income_yes_only input, .patient_income_yes_only select').removeClass('correct');
+		jQuery('.patient_income_yes_only input, .patient_income_yes_only select').removeClass('error');
+		jQuery('.patient_income_yes_only .checkbox-with-label-correct2').remove();
+		jQuery('.patient_income_yes_only .checkbox-with-label-correct3').remove();
+		jQuery('.patient_income_yes_only .checkbox-with-label-error2').remove();
+		jQuery('.patient_income_yes_only .checkbox-with-label-error3').remove();
+		jQuery('.patient_income_yes_only .radio-correct').remove();
+		jQuery('.patient_income_yes_only .radio-with-error').remove();
+		jQuery('.patient_income_yes_only input[type=radio]').each(function (index, element) {
+			jQuery('#valid-' + jQuery(element).attr('name')).remove();
+		});
+	}
+
+	if (jQuery('input[name="p_has_income"]:checked').val() == 0) {
+        // mandatory sign hide
+        jQuery('label[for="p_income_file_tax_return"]').find('span.red').hide();
+        
+		jQuery('#patient_income_section').removeClass('hidden');
+		jQuery('.patient_income_yes_only').addClass('hidden');
+	}
+}
+
+/*
+*
+* Activates the 2nd level insurance questions
+*
+*/
+function show2ndLevelInsuranceQuestions(e) {
+	if (e) {
+		inputObjName = e.target.name;
+
+		input2ndLevelName = '';
+		switch(inputObjName) {
+			case 'p_medicare':
+				input2ndLevelName = 'p_medicare_part_d';
+				break;
+			case 'p_medicaid':
+				input2ndLevelName = 'p_medicaid_denial';
+				break;
+			case 'p_lis':
+				input2ndLevelName = 'p_lis_denial';
+				break;
+		}
+		jQuery('#valid-' + input2ndLevelName).remove();
+		jQuery('#error-' + input2ndLevelName).remove();
+
+		if (jQuery('input[name=' + inputObjName + ']:checked').val() == 1) {
+			jQuery('.' + inputObjName + '_2nd').show();
+		} else {
+			jQuery('.' + inputObjName + '_2nd').hide();
+			jQuery('.' + inputObjName + '_2nd').attr('checked', false);
+		}
+	} else {
+		if (jQuery('input[name=p_medicare]:checked').val() == 1) {
+			jQuery('.p_medicare_2nd').show();
+		} else {
+			jQuery('.p_medicare_2nd').hide();
+			jQuery('.p_medicare_2nd').attr('checked', false);
+		}
+
+		if (jQuery('input[name=p_medicaid]:checked').val() == 1) {
+			jQuery('.p_medicaid_2nd').show();
+		} else {
+			jQuery('.p_medicaid_2nd').hide();
+			jQuery('.p_medicaid_2nd').attr('checked', false);
+		}
+
+		if (jQuery('input[name=p_lis]:checked').val() == 1) {
+			jQuery('.p_lis_2nd').show();
+		} else {
+			jQuery('.p_lis_2nd').hide();
+			jQuery('.p_lis_2nd').attr('checked', false);
+		}
+	}
+}
+
+function refreshRadioGroupsValidationIcons() {
+	jQuery('input[type="radio"]').each(function (index, elem) {
+		var elName = jQuery(elem).attr('name');
+		var elRadio = jQuery("input[name=" + elName + "]").first();
+		//var elPos = jQuery(elRadio).position();
+		var elPos = jQuery('label[for="' + elRadio.attr('id') + '"]').first().position();
+
+		/*
+		if (elRadio.is(':visible')) {
+			jQuery('#valid-' + elName).css("top", (elPos.top - 1) + "px");
+		} else {
+			jQuery('#valid-' + elName).remove();
+		}
+		*/
+	});
+}
+
+/*
+*
+* 2nd Step - auto-uncheck zero income checkbox if some income was entered
+*
+*/
+function updateZeroIncome () {
+    if (jQuery('input[name=p_income_salary]').val() != 0 ||
+		jQuery('input[name=p_income_unemployment]').val() != 0 ||
+		jQuery('input[name=p_income_pension]').val() != 0 ||
+		jQuery('input[name=p_income_annuity]').val() != 0 ||
+		jQuery('input[name=p_income_ss_retirement]').val() != 0 ||
+		jQuery('input[name=p_income_ss_disability]').val() != 0)
+    {
+		jQuery('input[name=p_income_zero]').attr('checked', false);
+    }
+}
+
+/*
+*
+* sum up the income to get the annual income
+*
+*/
+function updateTotalAnnualIncome () {
+	var income1 = 0; var income2 = 0; var income3 = 0;
+	var income4 = 0; var income5 = 0; var income6 = 0;
+	income1 = (jQuery('input[name=p_income_salary]').val() != '') ? parseFloat(jQuery('input[name=p_income_salary]').val().replace(/[^0-9.]/g, '')) : 0;
+	income2 = (jQuery('input[name=p_income_unemployment]').val() != '') ? parseFloat(jQuery('input[name=p_income_unemployment]').val().replace(/[^0-9.]/g, '')) : 0;
+	income3 = (jQuery('input[name=p_income_pension]').val() != '') ? parseFloat(jQuery('input[name=p_income_pension]').val().replace(/[^0-9.]/g, '')) : 0;
+	income4 = (jQuery('input[name=p_income_annuity]').val() != '') ? parseFloat(jQuery('input[name=p_income_annuity]').val().replace(/[^0-9.]/g, '')) : 0;
+	income5 = (jQuery('input[name=p_income_ss_retirement]').val() != '') ? parseFloat(jQuery('input[name=p_income_ss_retirement]').val().replace(/[^0-9.]/g, '')) : 0;
+	income6 = (jQuery('input[name=p_income_ss_disability]').val() != '') ? parseFloat(jQuery('input[name=p_income_ss_disability]').val().replace(/[^0-9.]/g, '')) : 0;
+    var totalIncome = ( (parseFloat(income1)+parseFloat(income2)+parseFloat(income3)+parseFloat(income4)+parseFloat(income5)+parseFloat(income6)) * 12).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: true});
+    if(totalIncome!='NaN'){
+        jQuery('input[name=p_income_annual_income]').val(totalIncome);
+    }
+    else{
+        jQuery('input[name=p_income_annual_income]').val('0.00');
+    }
+    
+//    jQuery('input[name=p_income_annual_income]').val(income * 12).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+}
+
+/*
+*
+* 3rd Step - Show new doctor form
+*
+*/
+function showAddDoctorForm (line) {
+	//hide the rest of the medication rows
+	for (i = line+1; i < 10; i++) {
+		jQuery('.medication_line_' + i).hide();
+	}
+
+	//hide submit buttons
+	//jQuery('#bPrevStep, #bNextStep').hide();
+
+	//hide any previous add new doctor form
+	if (jQuery('#new_doctor_form').length) {
+		jQuery('#new_doctor_form').remove();
+	}
+
+	//show add doctor form
+	new_doctor_form_template = '\
+		<div id="new_doctor_form">\
+			<br/><br/>\
+			<p class="center-alignment subhead2-blue">ADD NEW DOCTOR</p>\
+			<p class="center-alignment subhead2-blue">Only list doctor prescribing the medication.</p>\
+			<br/>\
+			<p class="center-alignment moduleSubheader">Fields with asterisks (*) are required.</p>\
+			\
+			<p>\
+				<label for="dr_first_name">Doctor First Name *</label>\
+				<input type="text" name="dr_first_name" value="" class="dr-required"><br/><br/>\
+				\
+				<label for="dr_last_name">Doctor Last Name *</label>\
+				<input type="text" name="dr_last_name" value="" class="dr-required"><br/><br/>\
+				\
+				<label for="dr_facility">Facility Name</label>\
+				<input type="text" name="dr_facility" value=""><br/><br/>\
+				\
+				<label for="dr_address">Address *</label>\
+				<input type="text" name="dr_address" value="" class="dr-required"><br/><br/>\
+				\
+				<label for="dr_address2">Suite</label>\
+				<input type="text" name="dr_address2" value=""><br/><br/>\
+				\
+				<label for="dr_city">City *</label>\
+				<input type="text" name="dr_city" value="" class="dr-required"><br/><br/>\
+				\
+				<label for="dr_state">State *</label>\
+				<select name="dr_state" class="dr-required">\
+					<option value="" selected="selected">Select a State</option>\
+					<option value="AL">Alabama</option>\
+					<option value="AK">Alaska</option>\
+					<option value="AZ">Arizona</option>\
+					<option value="AR">Arkansas</option>\
+					<option value="CA">California</option>\
+					<option value="CO">Colorado</option>\
+					<option value="CT">Connecticut</option>\
+					<option value="DE">Delaware</option>\
+					<option value="DC">District Of Columbia</option>\
+					<option value="FL">Florida</option>\
+					<option value="GA">Georgia</option>\
+					<option value="HI">Hawaii</option>\
+					<option value="ID">Idaho</option>\
+					<option value="IL">Illinois</option>\
+					<option value="IN">Indiana</option>\
+					<option value="IA">Iowa</option>\
+					<option value="KS">Kansas</option>\
+					<option value="KY">Kentucky</option>\
+					<option value="LA">Louisiana</option>\
+					<option value="ME">Maine</option>\
+					<option value="MD">Maryland</option>\
+					<option value="MA">Massachusetts</option>\
+					<option value="MI">Michigan</option>\
+					<option value="MN">Minnesota</option>\
+					<option value="MS">Mississippi</option>\
+					<option value="MO">Missouri</option>\
+					<option value="MT">Montana</option>\
+					<option value="NE">Nebraska</option>\
+					<option value="NV">Nevada</option>\
+					<option value="NH">New Hampshire</option>\
+					<option value="NJ">New Jersey</option>\
+					<option value="NM">New Mexico</option>\
+					<option value="NY">New York</option>\
+					<option value="NC">North Carolina</option>\
+					<option value="ND">North Dakota</option>\
+					<option value="OH">Ohio</option>\
+					<option value="OK">Oklahoma</option>\
+					<option value="OR">Oregon</option>\
+					<option value="PA">Pennsylvania</option>\
+					<option value="PR">Puerto Rico</option>\
+					<option value="RI">Rhode Island</option>\
+					<option value="SC">South Carolina</option>\
+					<option value="SD">South Dakota</option>\
+					<option value="TN">Tennessee</option>\
+					<option value="TX">Texas</option>\
+					<option value="UT">Utah</option>\
+					<option value="VT">Vermont</option>\
+					<option value="VA">Virginia</option>\
+					<option value="WA">Washington</option>\
+					<option value="WV">West Virginia</option>\
+					<option value="WI">Wisconsin</option>\
+					<option value="WY">Wyoming</option>\
+				</select><br/><br/>\
+				\
+				<label for="dr_zip">ZIP Code *</label>\
+				<input type="text" name="dr_zip" value="" maxlength="5" class="dr-required"><br/><br/>\
+				\
+				<label for="dr_phone">Phone *</label>\
+				<input type="text" name="dr_phone" value="" class="dr-required"><br/><br/>\
+				\
+				<label for="dr_fax">Fax</label>\
+				<input type="text" name="dr_fax" value="">\
+				\
+				<br/><br/>\
+				\
+				<label>&nbsp;</label>\
+				<input type="button" name="bAddNewDoctor" id="bAddNewDoctor" value="ADD" class="cancel small-button-orange"> &nbsp;\
+				<a href="#" id="bCancelAddNewDoctor">Cancel</a>\
+			</p>\
+		</div>';
+
+	//create form
+	jQuery('.medication_line_' + line).last().after(new_doctor_form_template);
+
+	//add masks
+	jQuery("input[name='dr_zip']").each(function(index, elem) {
+		jQuery(elem).mask('99999', {clearIfNotMatch: true});
+	});
+	//
+	jQuery("input[name='dr_phone']").each(function(index, elem) {
+		jQuery(elem).mask('999-999-9999', {clearIfNotMatch: true});
+	});
+	//
+	jQuery("input[name='dr_fax']").each(function(index, elem) {
+		jQuery(elem).mask('999-999-9999', {clearIfNotMatch: true});
+	});
+
+	//buttons actions
+	jQuery('#bAddNewDoctor').click(AddNewDoctor);
+	jQuery('#bCancelAddNewDoctor').click(hideAddDoctorForm);
+}
+
+/*
+*
+* 3rd Step - Hide the add new doctor form
+*
+*/
+function AddNewDoctor (e) {
+	e.preventDefault();
+
+	valid_form = true;
+	first_invalid_element = false;
+
+	//remove existent errors
+	jQuery('label.error').remove();
+
+	//validate form
+	jQuery('.dr-required').each(function(index, elem) {
+		if (jQuery(elem).val() == '') {
+			if (first_invalid_element === false) {
+				first_invalid_element = jQuery(elem);
+			}
+
+			//add error label
+			errorLabel = jQuery('<label>').attr('for', jQuery(elem).id).addClass('error').addClass('invalid-field').text('This field is required');
+			errorLabel.insertAfter(jQuery(elem));
+
+			valid_form = false;
+		}
+	})
+	//ascii validation
+	jQuery('input').each(function(index, elem) {
+		elemName = jQuery(elem).attr('name');
+		if (typeof elemName != 'undefined' && jQuery(elem).attr('name').substr(0, 3) == 'dr_') {
+			if (!isAscii(jQuery(elem).val())) {
+				if (first_invalid_element === false) {
+					first_invalid_element = jQuery(elem);
+				}
+
+				//add error label
+				errorLabel = jQuery('<label>').attr('for', jQuery(elem).id).addClass('error').addClass('invalid-field').text('Please insert only alphanumeric characters.');
+				errorLabel.insertAfter(jQuery(elem));
+
+				valid_form = false;
+			}
+		}
+	})
+
+	//validate zip code
+	zip_code_elem = jQuery('input[name="dr_zip"]');
+	if (!(/^\s*\d{5}\s*$/.test(zip_code_elem.val()))) {
+		//add error label
+		errorLabel = jQuery('<label>').attr('for', zip_code_elem.id).addClass('error').addClass('invalid-field').text('Invalid zip code');
+		errorLabel.insertAfter(zip_code_elem);
+
+		if ((first_invalid_element === false) || (first_invalid_element && first_invalid_element.attr('name') == 'dr_phone')) {
+			zip_code_elem.focus();
+			first_invalid_element = zip_code_elem;
+		}
+
+		valid_form = false;
+	}
+
+	if (valid_form) {
+		//
+		dr_id = jQuery('.doctors_dropdown:visible').last().find('option').size() - 1;
+
+		//add new doctor to the form
+		jQuery('<input>').attr('type', 'hidden').attr('name', 'doctor_first_name[' + (dr_id - 1) + ']').val(jQuery('input[name="dr_first_name"]').val()).insertBefore(jQuery('#bSubmit'));
+		jQuery('<input>').attr('type', 'hidden').attr('name', 'doctor_last_name[' + (dr_id - 1) + ']').val(jQuery('input[name="dr_last_name"]').val()).insertBefore(jQuery('#bSubmit'));
+		jQuery('<input>').attr('type', 'hidden').attr('name', 'doctor_facility[' + (dr_id - 1) + ']').val(jQuery('input[name="dr_facility"]').val()).insertBefore(jQuery('#bSubmit'));
+		jQuery('<input>').attr('type', 'hidden').attr('name', 'doctor_address[' + (dr_id - 1) + ']').val(jQuery('input[name="dr_address"]').val()).insertBefore(jQuery('#bSubmit'));
+		jQuery('<input>').attr('type', 'hidden').attr('name', 'doctor_address2[' + (dr_id - 1) + ']').val(jQuery('input[name="dr_address2"]').val()).insertBefore(jQuery('#bSubmit'));
+		jQuery('<input>').attr('type', 'hidden').attr('name', 'doctor_city[' + (dr_id - 1) + ']').val(jQuery('input[name="dr_city"]').val()).insertBefore(jQuery('#bSubmit'));
+		jQuery('<input>').attr('type', 'hidden').attr('name', 'doctor_state[' + (dr_id - 1) + ']').val(jQuery('select[name="dr_state"]').val()).insertBefore(jQuery('#bSubmit'));
+		jQuery('<input>').attr('type', 'hidden').attr('name', 'doctor_zip[' + (dr_id - 1) + ']').val(jQuery('input[name="dr_zip"]').val()).insertBefore(jQuery('#bSubmit'));
+		jQuery('<input>').attr('type', 'hidden').attr('name', 'doctor_phone[' + (dr_id - 1) + ']').val(jQuery('input[name="dr_phone"]').val()).insertBefore(jQuery('#bSubmit'));
+		jQuery('<input>').attr('type', 'hidden').attr('name', 'doctor_fax[' + (dr_id - 1) + ']').val(jQuery('input[name="dr_fax"]').val()).insertBefore(jQuery('#bSubmit'));
+
+		//add the new doctor to the medication doctor drop-downs
+		jQuery('.doctors_dropdown').append(jQuery('<option>', {value: dr_id, text: 'Doctor ' + dr_id + ' (' + jQuery('input[name="dr_first_name"]').val() + ' ' + jQuery('input[name="dr_last_name"]').val() + ')'}));
+
+		//auto-select the new doctor for the medication that's edited
+		jQuery('.doctors_dropdown:visible').last().val(dr_id);
+
+		//remove the "Add new doctor" option from the medication that's edited
+		jQuery('.doctors_dropdown:visible').last().find('option').each(function() {
+			if (jQuery(this).text() == 'Add new doctor') {
+				jQuery(this).remove();
+			}
+		});
+
+		//destroy form
+		hideAddDoctorForm(e);
+	} else {
+		//scroll to first invalid field
+		first_invalid_element.focus();
+		jQuery(window).scrollTop(first_invalid_element.position().top - 250);
+	}
+}
+
+/*
+*
+* 3rd Step - Hide the add new doctor form
+*
+*/
+function hideAddDoctorForm (e) {
+	e.preventDefault();
+
+	//hide form
+	jQuery('#new_doctor_form').remove();
+
+	if (jQuery('.doctors_dropdown:visible').length < 10) {
+		//reset doctor value if new doctor form was canceled
+		if (e.target.id == 'bCancelAddNewDoctor') {
+			jQuery('.doctors_dropdown:visible').last().val('');
+		}
+
+		//focus & scroll
+		jQuery('.doctors_dropdown:visible').last().focus();
+		jQuery(window).scrollTop(jQuery('.doctors_dropdown:visible').last().position().top - 250);
+
+		//show all medication lines
+		for (i = 0; i < 10; i++) {
+			jQuery('.medication_line_' + i).show();
+		}
+	}
+
+	//show submit buttons
+	//jQuery('#bPrevStep, #bNextStep').show();
+}
+
+function AddANewDoctor (e) {
+	//new_dr_id = parseInt(jQuery('input#dr_id').val()) + 1;
+	new_dr_id = jQuery('input.doctor-fields').length + 1;
+
+	//reset dr form
+	jQuery('.dr-data').val('');
+	jQuery('input#dr_id').val(new_dr_id);
+
+	//remove errors and green checks
+	jQuery('.dr-data').removeClass('error').removeClass('field-error-only').removeClass('correct');
+	jQuery('.dr-data').each(function (index, elem) {
+		jQuery(elem).parent().find('label.error').remove();
+	});
+}
+ 
+ 
+function ReorderDocSpecifiers(){
+    var i = 1;
+    jQuery('.dr-form .doctor-no-field').each(function(){
+        jQuery(this).html('Healthcare Provider '+i+':');
+        i++;
+    });
+    var i = 1;
+    jQuery('.dr-form .doctor-fname-field input').each(function(){
+        jQuery(this).attr('name','doctor_first_name['+i+']');
+        i++;
+    });
+    var i = 1;
+    jQuery('.dr-form .doctor-lname-field input').each(function(){
+        jQuery(this).attr('name','doctor_last_name['+i+']');
+        i++;
+    });
+    var i = 1;
+    jQuery('.dr-form .doctor-facility-field input').each(function(){
+        jQuery(this).attr('name','doctor_facility['+i+']');
+        i++;
+    });
+    var i = 1;
+    jQuery('.dr-form .doctor-address-field input').each(function(){
+        jQuery(this).attr('name','doctor_address['+i+']');
+        i++;
+    });
+    var i = 1;
+    jQuery('.dr-form .doctor-address2-field input').each(function(){
+        jQuery(this).attr('name','doctor_address2['+i+']');
+        i++;
+    });    
+    var i = 1;
+    jQuery('.dr-form .doctor-city-field input').each(function(){
+        jQuery(this).attr('name','doctor_city['+i+']');
+        i++;
+    });
+    var i = 1;
+    jQuery('.dr-form .doctor-state-field input').each(function(){
+        jQuery(this).attr('name','doctor_state['+i+']');
+        i++;
+    });
+    var i = 1;
+    jQuery('.dr-form .doctor-zip-field input').each(function(){
+        jQuery(this).attr('name','doctor_zip['+i+']');
+        i++;
+    });
+    var i = 1;
+    jQuery('.dr-form .doctor-phone-field input').each(function(){
+        jQuery(this).attr('name','doctor_phone['+i+']');
+        i++;
+    });
+    var i = 1;
+    jQuery('.dr-form .doctor-fax-field input').each(function(){
+        jQuery(this).attr('name','doctor_fax['+i+']');
+        i++;
+    });
+}
+
+function AddNewDoctorForm (e) {
+    // Reorder doctors block
+    ReorderDocSpecifiers();
+    
+	var new_dr_id = jQuery('input.doctor-fields').length + 1;
+    var is_empty = false;
+    jQuery('#dr_err').remove();
+    var prev_eq = (new_dr_id>=2) ? new_dr_id - 2 : 0;
+    jQuery('.dr-required').each(function(){
+        if( jQuery(this).val()=='' ){           
+            is_empty = true;            
+        }
+    });
+    
+    if(is_empty){
+        jQuery('#doctors_forms_list').append('<span id="dr_err" class="error">Please fill complete information of Healthcare Provider '+(new_dr_id-parseInt(1))+'</span>');
+        return false;
+    }
+    
+	//newDrForm = jQuery('.dr-form').eq(0).clone();
+	newDrForm = jQuery('<div old-id="doctor_form" class="dr-form" id="pb'+new_dr_id+'">\<div class="remove-div-1"><a href="javascript:void(0);" class="remove_block" id="remove_provider_pb'+new_dr_id+'">X Remove Provider</a></div>\<div class="doctor-no-field p20-width align-left bold text-center w100">Provider :</div>\
+									<div>\
+										<div class="half-width doctor-fname-field"><input autocomplete="nope" type="text" name="doctor_first_name[999]" value="" class="dr-required dr-data doctor-fields LoNotSensitive dyn" placeholder="Healthcare Provider First Name *"></div>\
+										<div class="half-width doctor-lname-field"><input autocomplete="nope" type="text" name="doctor_last_name[999]" value="" class="dr-required dr-data LoNotSensitive dyn" placeholder="Healthcare Provider Last Name *"></div>\
+									</div>\
+									<div class="clear"></div>\
+									<div>\
+										<div class="half-width doctor-facility-field"><input autocomplete="nope" type="text" name="doctor_facility[999]" value="" class="dr-data LoNotSensitive" placeholder="Facility Name"></div>\
+										<div class="half-width doctor-address-field"><input autocomplete="nope" type="text" name="doctor_address[999]" value="" class="dr-required dr-data dr-address LoNotSensitive dyn" placeholder="Address *" rel="Some health care providers have multiple locations they work from, please provide the address for the location you visit your health care provider at."></div>\
+									</div>\
+									<div class="clear"></div>\
+									<div>\
+										<div class="half-width doctor-address2-field"><input autocomplete="nope" type="text" name="doctor_address2[999]" value="" class="dr-data LoNotSensitive" placeholder="Suite Number"></div>\
+										<div class="half-width doctor-city-field"><input autocomplete="nope" type="text" name="doctor_city[999]" value="" class="dr-required dr-data LoNotSensitive dyn" placeholder="City *"></div>\
+									</div>\
+									<div class="clear"></div>\
+									<div>\
+										<div class="half-width doctor-state-field">\
+										<div class="jvFloat sel_wrapper doctor_state_wrapper">\
+											<select name="doctor_state[999]" class="dr-required dr-data full-width LoNotSensitive dyn" placeholder="State *">\
+												<option value="" selected="selected">State *</option>\
+												<option value="AL">Alabama</option>\
+												<option value="AK">Alaska</option>\
+												<option value="AZ">Arizona</option>\
+												<option value="AR">Arkansas</option>\
+												<option value="CA">California</option>\
+												<option value="CO">Colorado</option>\
+												<option value="CT">Connecticut</option>\
+												<option value="DE">Delaware</option>\
+												<option value="DC">District Of Columbia</option>\
+												<option value="FL">Florida</option>\
+												<option value="GA">Georgia</option>\
+												<option value="HI">Hawaii</option>\
+												<option value="ID">Idaho</option>\
+												<option value="IL">Illinois</option>\
+												<option value="IN">Indiana</option>\
+												<option value="IA">Iowa</option>\
+												<option value="KS">Kansas</option>\
+												<option value="KY">Kentucky</option>\
+												<option value="LA">Louisiana</option>\
+												<option value="ME">Maine</option>\
+												<option value="MD">Maryland</option>\
+												<option value="MA">Massachusetts</option>\
+												<option value="MI">Michigan</option>\
+												<option value="MN">Minnesota</option>\
+												<option value="MS">Mississippi</option>\
+												<option value="MO">Missouri</option>\
+												<option value="MT">Montana</option>\
+												<option value="NE">Nebraska</option>\
+												<option value="NV">Nevada</option>\
+												<option value="NH">New Hampshire</option>\
+												<option value="NJ">New Jersey</option>\
+												<option value="NM">New Mexico</option>\
+												<option value="NY">New York</option>\
+												<option value="NC">North Carolina</option>\
+												<option value="ND">North Dakota</option>\
+												<option value="OH">Ohio</option>\
+												<option value="OK">Oklahoma</option>\
+												<option value="OR">Oregon</option>\
+												<option value="PA">Pennsylvania</option>\
+												<option value="PR">Puerto Rico</option>\
+												<option value="RI">Rhode Island</option>\
+												<option value="SC">South Carolina</option>\
+												<option value="SD">South Dakota</option>\
+												<option value="TN">Tennessee</option>\
+												<option value="TX">Texas</option>\
+												<option value="UT">Utah</option>\
+												<option value="VT">Vermont</option>\
+												<option value="VA">Virginia</option>\
+												<option value="WA">Washington</option>\
+												<option value="WV">West Virginia</option>\
+												<option value="WI">Wisconsin</option>\
+												<option value="WY">Wyoming</option>\
+											</select>\
+											</div>\
+										</div>\
+										<div class="half-width doctor-zip-field"><input autocomplete="nope" type="text" name="doctor_zip[999]" value="" maxlength="5" class="dr-required dr-data dr-zip LoNotSensitive dyn" placeholder="Zip Code *"></div>\
+									</div>\
+									<div class="clear"></div>\
+									<div>\
+										<div class="half-width doctor-phone-field"><input autocomplete="nope" type="text" name="doctor_phone[999]" value="" class="dr-required dr-data dr-phone LoNotSensitive dyn" placeholder="Phone Number *"></div>\
+										<div class="half-width doctor-fax-field"><input autocomplete="nope" type="text" name="doctor_fax[999]" value="" class="dr-data dr-fax LoNotSensitive" placeholder="Fax Number"></div>\
+									</div>\
+								</div>');
+
+	newDrForm.find('.doctor-no-field').text('Healthcare Provider ' + (new_dr_id) + ':');
+	newDrForm.find('.dr-data').each(function (index, elem) {
+		jQuery(elem).change(UpdateDoctor);
+		jQuery(elem).attr('name', jQuery(elem).attr('name').replace(/\[.*?\]\s?/g, '[' + new_dr_id + ']'));
+	});
+	newDrForm.find('select.dr-data').keyup(UpdateDoctor);
+	newDrForm.appendTo('#doctors_forms_list');
+
+	jQuery("input.dr-phone").mask("000-000-0000", {clearIfNotMatch: true});
+	jQuery("input.dr_fax").mask("000-000-0000", {clearIfNotMatch: true});
+
+	//jQuery('.dr-form:last input, .dr-form:last select').jvFloat();    
+	jQuery('.dr-form:last input').jvFloat();
+	// bind jquery validation with dynamic fields
+    bindDynamicValidations();
+	initializeDoctorAddressElementGeoLocation(document.getElementById(jQuery('input.dr-address:last').attr('id')), new_dr_id);
+}
+
+function UpdateDoctor (e) {
+	//update doctor data
+	var dr_id = jQuery('input#dr_id').val();
+	var dr_field_name = jQuery(this).attr('name');
+
+	valid_form = true;
+	first_invalid_element = false;
+
+	//remove existent errors
+	//jQuery('.dr-data').removeClass('error');
+
+	//show green checkmark
+	if (jQuery(this).val() != '') {
+		jQuery(this).addClass('correct');
+	} else {
+		jQuery(this).removeClass('correct');
+	}
+
+	//validate form
+	jQuery('.dr-required').each(function(index, elem) {
+		if (jQuery(elem).val() == '') {
+			if (first_invalid_element === false) {
+				first_invalid_element = jQuery(elem);
+			}
+
+			if (jQuery(elem).attr('name') == dr_field_name) {
+				jQuery(elem).removeClass('correct');
+				jQuery(elem).removeClass('field-error-only');
+				jQuery(elem).addClass('error');
+
+				if (jQuery(elem).parent().find('.invalid-field').length == 0) {
+					//add error label
+					errorLabel = jQuery('<label>').attr('for', jQuery(elem).id).addClass('error').addClass('invalid-field').text('This field is required');
+					errorLabel.insertAfter(jQuery(elem));
+				}
+				if( jQuery(elem).hasClass('dr-phone') && jQuery(elem).val()!='' && jQuery(elem).val()==jQuery('input[name="p_phone"]').val() ){
+					//add error label
+					errorLabel = jQuery('<label>').attr('for', jQuery(elem).id).addClass('error').addClass('invalid-field').text('This field is required');
+					errorLabel.insertAfter(jQuery(elem));
+				}
+			}
+			valid_form = false;
+		} else {
+			if (jQuery(elem).attr('name') == dr_field_name) {
+				jQuery(elem).removeClass('error');
+				jQuery(elem).parent().find('.invalid-field').remove();
+			}
+		}
+	})
+
+	//ascii validation
+	jQuery('input').each(function(index, elem) {
+		elemName = jQuery(elem).attr('name');
+		if (typeof elemName != 'undefined' && jQuery(elem).attr('name').substr(0, 7) == 'doctor_') {
+			if (!isAscii(jQuery(elem).val())) {
+				if (first_invalid_element === false) {
+					first_invalid_element = jQuery(elem);
+				}
+
+				if (jQuery(elem).attr('name') == dr_field_name) {
+					jQuery(elem).removeClass('correct');
+					jQuery(elem).removeClass('field-error-only');
+					jQuery(elem).addClass('error');
+
+					if (jQuery(elem).parent().find('.invalid-field').length == 0) {
+						//add error label
+						errorLabel = jQuery('<label>').attr('for', jQuery(elem).id).addClass('error').addClass('invalid-field').text('Please insert only alphanumeric characters.');
+						errorLabel.insertAfter(jQuery(elem));
+					}
+				}
+
+				valid_form = false;
+			} else {
+				if (jQuery(elem).attr('name') == dr_field_name) {
+					jQuery(elem).removeClass('error');
+					jQuery(elem).parent().find('.invalid-field').remove();
+				}
+			}
+		}
+	})
+
+	//validate zip code
+	//zip_code_elem = jQuery('input[name="dr_zip"]');
+	zip_code_elem = jQuery(this);
+	if (dr_field_name.substr(0, 10) == 'doctor_zip' && zip_code_elem != '') {
+		if (!(/^\s*\d{5}\s*$/.test(zip_code_elem.val()))) {
+			zip_code_elem.removeClass('correct');
+			zip_code_elem.removeClass('field-error-only');
+			zip_code_elem.addClass('error');
+
+			if (zip_code_elem.parent().find('.invalid-field').length == 0) {
+				//add error label
+				errorLabel = jQuery('<label>').attr('for', zip_code_elem.id).addClass('error').addClass('invalid-field').text('Invalid zip code');
+				errorLabel.insertAfter(zip_code_elem);
+			}
+
+			valid_form = false;
+		} else {
+			if (dr_field_name.substr(0, 10) == 'doctor_zip') {
+				zip_code_elem.removeClass('error');
+				zip_code_elem.parent().find('.invalid-field').remove();
+			}
+		}
+
+		//if ((first_invalid_element === false) || (first_invalid_element && first_invalid_element.attr('name').substr(0, 12) == 'doctor_phone')) {
+		//	zip_code_elem.focus();
+		//	first_invalid_element = zip_code_elem;
+		//}
+
+	}
+	
+	if (dr_field_name.substr(0, 10) == 'doctor_pho' && jQuery(this).val() != '' && jQuery(this).siblings('label.error').length==0) {
+		if( jQuery(this).val()!=jQuery('input[name="p_phone"]').val() ){
+			jQuery(this).removeClass('error').addClass('correct');
+		}
+		else{
+			//add error label
+			errorLabel = jQuery('<label>').attr('for', jQuery(this).id).addClass('error invalid-field').removeClass('correct').text('Your phone number cannot match the healthcare provider\'s phone number. Please enter a valid phone number.');
+			errorLabel.insertAfter(jQuery(this));
+			jQuery(this).removeClass('correct').addClass('error');
+			valid_form = false;
+		}
+	}
+	
+	if (dr_field_name.substr(0, 15) == 'doctor_address[' && jQuery(this).val() != '' && jQuery(this).siblings('label.error').length==0) {
+		if( jQuery(this).val().toLowerCase() !=jQuery('input[name="p_address"]').val().toLowerCase() ){
+			jQuery(this).removeClass('error').addClass('correct');
+		}
+		else{
+			//add error label
+			errorLabel = jQuery('<label>').attr('for', jQuery(this).id).addClass('error invalid-field').removeClass('correct').text('Your address cannot match the healthcare provider\'s address. Please enter a valid address.');
+			errorLabel.insertAfter(jQuery(this));
+			jQuery(this).removeClass('correct').addClass('error');
+			valid_form = false;
+		}
+	}
+
+	if (valid_form) {
+		//if (!jQuery('input[name="doctor_first_name[' + (dr_id) + ']"]').length) {
+		//	CreateNewDoctorRow(dr_id);
+		//}
+
+		//jQuery('input[name="doctor_first_name[' + (dr_id) + ']"]').val(jQuery('input[name="dr_first_name"]').val());
+		//jQuery('input[name="doctor_last_name[' + (dr_id) + ']"]').val(jQuery('input[name="dr_last_name"]').val());
+		//jQuery('input[name="doctor_facility[' + (dr_id) + ']"]').val(jQuery('input[name="dr_facility"]').val());
+		//jQuery('input[name="doctor_address[' + (dr_id) + ']"]').val(jQuery('input[name="dr_address"]').val());
+		//jQuery('input[name="doctor_address2[' + (dr_id) + ']"]').val(jQuery('input[name="dr_address2"]').val());
+		//jQuery('input[name="doctor_city[' + (dr_id) + ']"]').val(jQuery('input[name="dr_city"]').val());
+		//jQuery('input[name="doctor_state[' + (dr_id) + ']"]').val(jQuery('select[name="dr_state"]').val());
+		//jQuery('input[name="doctor_zip[' + (dr_id) + ']"]').val(jQuery('input[name="dr_zip"]').val());
+		//jQuery('input[name="doctor_phone[' + (dr_id) + ']"]').val(jQuery('input[name="dr_phone"]').val());
+		//jQuery('input[name="doctor_fax[' + (dr_id) + ']"]').val(jQuery('input[name="dr_fax"]').val());
+
+		//UpdateDoctorsList();
+
+		//update medication doctor drop-down
+		updateMedicationDoctorsDropdown();
+
+		//sync doctor data
+		syncDoctorsData();
+	} else {
+		//scroll to first invalid field
+		//if (first_invalid_element) {
+		//	first_invalid_element.focus();
+		//	jQuery(window).scrollTop(first_invalid_element.position().top - 250);
+		//}
+	}
+
+	//hide error messages
+	//jQuery(this).nextAll('.dr-data').each(function() {
+	//	console.log(jQuery(this).attr('name'));
+	//	jQuery(this).removeClass('error');
+	//});
+}
+
+function CreateNewDoctorRow (new_dr_id) {
+	//add new doctor to the form
+	jQuery('<input>').attr('type', 'hidden').attr('name', 'doctor_first_name[' + (new_dr_id) + ']').val('').addClass('doctor-fields').insertBefore(jQuery('#bSubmit'));
+	jQuery('<input>').attr('type', 'hidden').attr('name', 'doctor_last_name[' + (new_dr_id) + ']').val('').insertBefore(jQuery('#bSubmit'));
+	jQuery('<input>').attr('type', 'hidden').attr('name', 'doctor_facility[' + (new_dr_id) + ']').val('').insertBefore(jQuery('#bSubmit'));
+	jQuery('<input>').attr('type', 'hidden').attr('name', 'doctor_address[' + (new_dr_id) + ']').val('').insertBefore(jQuery('#bSubmit'));
+	jQuery('<input>').attr('type', 'hidden').attr('name', 'doctor_address2[' + (new_dr_id) + ']').val('').insertBefore(jQuery('#bSubmit'));
+	jQuery('<input>').attr('type', 'hidden').attr('name', 'doctor_city[' + (new_dr_id) + ']').val('').insertBefore(jQuery('#bSubmit'));
+	jQuery('<input>').attr('type', 'hidden').attr('name', 'doctor_state[' + (new_dr_id) + ']').val('').insertBefore(jQuery('#bSubmit'));
+	jQuery('<input>').attr('type', 'hidden').attr('name', 'doctor_zip[' + (new_dr_id) + ']').val('').insertBefore(jQuery('#bSubmit'));
+	jQuery('<input>').attr('type', 'hidden').attr('name', 'doctor_phone[' + (new_dr_id) + ']').val('').insertBefore(jQuery('#bSubmit'));
+	jQuery('<input>').attr('type', 'hidden').attr('name', 'doctor_fax[' + (new_dr_id) + ']').val('').insertBefore(jQuery('#bSubmit'));
+}
+
+function updateMedicationDoctorsDropdown() {
+	var updateDD = true;
+	if( jQuery('#removepb').val()==1){
+		jQuery('#removepb').val('');
+		jQuery('.doctors_dropdown').html('<option value="">Prescribing Healthcare Provider *</option>');
+		updateDD = false;
+	}
+	for (dr_id = 1; dr_id <= jQuery('input.doctor-fields').length; dr_id++) {
+		var drID = dr_id;
+		var drName = jQuery('input[name="doctor_first_name[' + dr_id + ']"]').val() + ' ' + jQuery('input[name="doctor_last_name[' + dr_id + ']"]').val();
+		var drExists = false;
+		jQuery('.doctors_dropdown').each(function(){ 
+			jQuery(this).find('option').each(function() {
+				if (jQuery(this).attr('value') == dr_id) {
+					jQuery(this).text(drName);
+					drExists = true;
+				}
+			});
+		});
+		if (!drExists && drName!=' ') {
+			jQuery('.doctors_dropdown').append(jQuery('<option>', {value: drID, text: drName}));
+		}
+	}
+	
+	console.log(jQuery('.doctors_dropdown option').length);
+	
+	// check if only 1 valid option is available then pre-select it
+	if(jQuery('select[name="medication_doctor[1]"] option').length==2 && updateDD){
+		console.log('updateMedicationDoctorsDropdown() - IF');
+		jQuery('.doctors_dropdown option:eq(1)').attr('selected', 'selected');
+		var ele_id = "medication_doctor[1]";
+		var placeholderText = jQuery('select[name="medication_doctor[1]"]').attr('placeholder');
+		placeholderText = jQuery.trim(placeholderText);
+		var cls_wrapper = jQuery('select[name="medication_doctor[1]"]').attr('name').split("[");
+		if(jQuery('select[name="medication_doctor[1]"]').val()!=''){
+			
+			console.log('updateMedicationDoctorsDropdown() - IF 1');
+			console.log(jQuery('select[name="medication_doctor[1]"]').val());
+			
+			if( jQuery('select[name="medication_doctor[1]"]').siblings('label.placeHolder').length==0 && placeholderText!=''){
+				
+				console.log('updateMedicationDoctorsDropdown() - IF 2');
+				
+				// add red colored (*) to placeholder   
+				var patt = /\*/g;
+				var result = patt.test(placeholderText);
+				if(result){
+				  placeholderText = placeholderText.replace('*','') + '<span class="red">*</span>';
+				}									
+				jQuery('select[name="medication_doctor[1]"]').addClass('not-empty');
+				jQuery('<label class="placeHolder active" for="'+ele_id+'">'+placeholderText+'</label>').insertBefore(jQuery('select[name="medication_doctor[1]"]'));
+				jQuery('select[name="medication_doctor[1]"]').parent('.jvFloat').removeClass('sel_wrapper '+cls_wrapper[0]+'_wrapper');
+				console.log('updateMedicationDoctorsDropdown() - IF 5');
+			}
+			else{
+				console.log('updateMedicationDoctorsDropdown() - IF 3');
+			}
+		}
+		else{
+			console.log('updateMedicationDoctorsDropdown() - ELSE');
+			jQuery('.doctors_dropdown').each(function(){
+				jQuery(this).find('option:selected').removeAttr('selected');
+				var cls_wrapper = jQuery(this).attr('name').split("[");
+				jQuery(this).removeClass('not-empty');
+				jQuery('label.placeHolder[for="'+jQuery(this).attr('name')+'"]').remove();
+				jQuery(this).parent('.jvFloat').addClass('sel_wrapper '+cls_wrapper[0]+'_wrapper');
+			});	
+		}
+	}
+	else{
+		console.log('updateMedicationDoctorsDropdown() - ELSE 2');
+		jQuery('.doctors_dropdown').each(function(){
+			jQuery(this).find('option:selected').removeAttr('selected');
+			var cls_wrapper = jQuery(this).attr('name').split("[");
+			jQuery(this).removeClass('not-empty');
+			jQuery('label.placeHolder[for="'+jQuery(this).attr('name')+'"]').remove();
+			jQuery(this).parent('.jvFloat').addClass('sel_wrapper '+cls_wrapper[0]+'_wrapper');
+		});		
+	}
+}
+
+function UpdateDoctorsList () {
+	jQuery('#doctors_list').remove();
+
+	if (jQuery('input.doctor-fields').length > 0) {
+		drs_list = '';
+		dr_added = 0;
+		for(dr_id = 1; dr_id <= jQuery('input.doctor-fields').length; dr_id++) {
+			if (jQuery('input[name="doctor_first_name[' + dr_id + ']"]').length > 0 && jQuery('input[name="doctor_last_name[' + dr_id + ']"]').length > 0 && jQuery('input[name="doctor_phone[' + dr_id + ']"]').length > 0 && jQuery('input[name="doctor_address[' + dr_id + ']"]').length > 0 && jQuery('input[name="doctor_city[' + dr_id + ']"]').length > 0 && jQuery('input[name="doctor_state[' + dr_id + ']"]').length > 0 && jQuery('input[name="doctor_zip[' + dr_id + ']"]').length > 0) {
+				dr_added++;
+
+				if (dr_added == 1) {
+					drs_list += '<div id="doctors_list" class="medication_list">\
+									<br>\
+									<div class="no-margin desktop-only">\
+										<span class="astable_small align-left">&nbsp;</span>\
+										<span class="astable align-left">Name</span>\
+										<span class="astable align-left">Phone</span>\
+										<span class="astable align-left">Address</span>\
+										<span class="astable_small align-right">Action</span>\
+									</div>\
+									<div class="no-margin mobile-only">\
+										<span class="astable bold">Doctors</span>\
+									</div>\
+									<div class="astable_hline desktop-only"></div>';
+				} else {
+					drs_list += '	<div class="astable_hline_light desktop-only"></div>';
+				}
+
+				drs_list += '		<div class="astable_hline mobile-only"></div>\
+									<div class="no-margin">\
+										<span class="astable_small align-left no-overflow bold">Provider ' + dr_added + '</span>\
+										<span class="astable align-left no-overflow">' + jQuery('input[name="doctor_first_name[' + dr_id + ']"]').val() + ' ' + jQuery('input[name="doctor_last_name[' + dr_id + ']"]').val() + '</span>\
+										<span class="astable align-left no-overflow">' + jQuery('input[name="doctor_phone[' + dr_id + ']"]').val() + '</span>\
+										<span class="astable align-left no-overflow">' + jQuery('input[name="doctor_address[' + dr_id + ']"]').val() + ',<br>' + jQuery('input[name="doctor_city[' + dr_id + ']"]').val() + ', ' + jQuery('input[name="doctor_state[' + dr_id + ']"]').val() + ' ' + jQuery('input[name="doctor_zip[' + dr_id + ']"]').val() + '</span>\
+										<span class="astable_small align-right mobile-only-margin-top"><a href="#" class="skipLeave" onclick="EditDoctor(' + dr_id + '); return false;">Edit</a></span>\
+									</div>';
+
+				//medication doctors dropdown
+				var drID = dr_id;
+				var drName = jQuery('input[name="doctor_first_name[' + dr_id + ']"]').val() + ' ' + jQuery('input[name="doctor_last_name[' + dr_id + ']"]').val();
+				var drExists = false;
+				jQuery('.doctors_dropdown').find('option').each(function() {
+					if (jQuery(this).attr('value') == dr_id) {
+						jQuery(this).text(drName);
+						drExists = true;
+					}
+				})
+				if (!drExists) {
+					jQuery('.doctors_dropdown').append(jQuery('<option>', {value: drID, text: drName}));
+				}
+			}
+		}
+
+		if (dr_added > 0) {
+			drs_list += '</div>';
+			jQuery(drs_list).insertAfter('div#doctor_form');
+		}
+	}
+}
+
+function EditDoctor (dr_id) {
+	jQuery('input#dr_id').val(dr_id);
+	jQuery('input[name="dr_first_name"]').val(jQuery('input[name="doctor_first_name[' + (dr_id) + ']"]').val()).trigger('blur');
+	jQuery('input[name="dr_last_name"]').val(jQuery('input[name="doctor_last_name[' + (dr_id) + ']"]').val()).trigger('blur');
+	jQuery('input[name="dr_facility"]').val(jQuery('input[name="doctor_facility[' + (dr_id) + ']"]').val()).trigger('blur');
+	jQuery('input[name="dr_address"]').val(jQuery('input[name="doctor_address[' + (dr_id) + ']"]').val()).trigger('blur');
+	jQuery('input[name="dr_address2"]').val(jQuery('input[name="doctor_address2[' + (dr_id) + ']"]').val()).trigger('blur');
+	jQuery('input[name="dr_city"]').val(jQuery('input[name="doctor_city[' + (dr_id) + ']"]').val()).trigger('blur');
+	jQuery('select[name="dr_state"]').val(jQuery('input[name="doctor_state[' + (dr_id) + ']"]').val()).trigger('blur');
+	jQuery('input[name="dr_zip"]').val(jQuery('input[name="doctor_zip[' + (dr_id) + ']"]').val()).trigger('blur');
+	jQuery('input[name="dr_phone"]').val(jQuery('input[name="doctor_phone[' + (dr_id) + ']"]').val()).trigger('blur');
+	jQuery('input[name="dr_fax"]').val(jQuery('input[name="doctor_fax[' + (dr_id) + ']"]').val()).trigger('blur');
+
+
+	jQuery('input[name="dr_first_name"]').focus();
+}
+
+function ReorderMedSpecifiers(){
+    var i = 1;
+    jQuery('.medication-row .medication-no-field').each(function(){
+        jQuery(this).html('Medication '+i);
+        i++;
+    });
+    var i = 1;
+    jQuery('.medication-row .medication-name-field input').each(function(){
+        jQuery(this).attr('name','medication_name['+i+']');
+        i++;
+    });
+    var i = 1;
+    jQuery('.medication-row .medication-strength-field input').each(function(){
+        jQuery(this).attr('name','medication_strength['+i+']');
+        i++;
+    });
+    var i = 1;
+    jQuery('.medication-row .medication-frequency-field input').each(function(){
+        jQuery(this).attr('name','medication_frequency['+i+']')
+        i++;
+    });
+    var i = 1;
+    jQuery('.medication-row .medication-doctor-field input').each(function(){
+        jQuery(this).attr('name','medication_doctor['+i+']');
+        i++;
+    });
+}
+
+function AddANewMedication (e) {
+    // re-order the sequence of blocks
+    ReorderMedSpecifiers();        
+    
+	//new_med_id = parseInt(jQuery('.med-data').length / 4) + 1;
+    new_med_id = parseInt(jQuery('.medication-row').length) + 1;
+    
+    // check if user has entered values in previous inputs
+    jQuery('#med_err').remove();
+    var prev_eq = (new_med_id>=2) ? new_med_id - 2 : 0;
+    if( jQuery('.medication-name-field').eq(prev_eq).find('input').val()=='' || jQuery('.medication-strength-field').eq(prev_eq).find('input').val()==''
+    || jQuery('.medication-frequency-field').eq(prev_eq).find('input').val()=='' || jQuery('.medication-doctor-field').eq(prev_eq).find('input').val()=='' ){
+        jQuery('.medication-row').eq(prev_eq).append('<span id="med_err" class="error">Please fill complete information of Medication '+parseInt(jQuery('.medication-row').length)+'</span>');
+        return false;
+    }
+	
+	var html = '<div class="medication-row"  id="mb'+new_med_id+'">';
+	html += '<div class="remove-div-1"><a href="javascript:void(0);" class="remove_block" id="remove_provider_mb'+new_med_id+'">X Remove Medication</a></div>';
+	html += '<div class="medication-no-field p20-width align-center bold w100">Medication '+new_med_id+'</div>';
+	html += '<div>';
+		html += '<div class="medication-name-field half-width"><input autocomplete="nope" type="text" name="medication_name['+new_med_id+']" value="" placeholder="Medication Name *" class="dyn med-data LoNotSensitive med_name"></div>';	
+		html += '<div class="medication-strength-field half-width"><input autocomplete="nope" type="text" name="medication_strength['+new_med_id+']" value="" placeholder="Medication Strength *" class="dyn med-data LoNotSensitive"></div>';	
+	html += '</div>';
+	html += '<div>';
+		html += '<div class="medication-frequency-field half-width"><input autocomplete="nope" type="text" name="medication_frequency['+new_med_id+']" value="" placeholder="Medication Frequency (ex. daily) *" class="dyn med-data LoNotSensitive"></div>';	
+		html += '<div class="medication-doctor-field half-width"><div class="jvFloat sel_wrapper medication_doctor_wrapper"><select autocomplete="nope" name="medication_doctor['+new_med_id+']" preload="" class="doctors_dropdown dyn med-data full-width LoNotSensitive" placeholder="Prescribing Healthcare Provider *"><option value="">Prescribing Healthcare Provider *</option></select></div></div>';
+	html += '</div>';
+	html += '</div>';
+	
+	jQuery('#medication_form').append(html);							
+	
+	jQuery('.medication-row:last input').jvFloat();
+	jQuery('input[name="medication_name['+new_med_id+']"]').change(syncMedicationData);
+	jQuery('input[name="medication_strength['+new_med_id+']"]').change(syncMedicationData);
+	jQuery('input[name="medication_frequency['+new_med_id+']"]').change(syncMedicationData);
+	jQuery('select[name="medication_doctor['+new_med_id+']"]').change(syncMedicationData).keyup(syncMedicationData);
+
+    // bind jquery validation with dynamic fields
+    bindDynamicValidations();
+	
+	jQuery('select[name="medication_doctor['+new_med_id+']"]').html(jQuery('select[name="medication_doctor['+parseInt(new_med_id-1)+']"]').html());
+		
+	console.log(jQuery('select[name="medication_doctor['+new_med_id+']"]').val()+' - id of selection :::: total options - '+jQuery('select[name="medication_doctor[1]"] option').length);
+	
+	if(jQuery('select[name="medication_doctor[1]"] option').length==2){
+		jQuery('select[name="medication_doctor['+new_med_id+']"] option:eq(1)').attr('selected', 'selected');
+		var ele_id = "medication_doctor["+new_med_id+"]";
+		var placeholderText = jQuery('select[name="medication_doctor['+new_med_id+']"]').attr('placeholder');
+		placeholderText = jQuery.trim(placeholderText);
+		var cls_wrapper = jQuery('select[name="medication_doctor['+new_med_id+']"]').attr('name').split("[");
+		if(jQuery('select[name="medication_doctor['+new_med_id+']"]').val()!=''){
+			if( jQuery('select[name="medication_doctor['+new_med_id+']"]').siblings('label.placeHolder').length==0 && placeholderText!=''){										
+				// add red colored (*) to placeholder   
+				var patt = /\*/g;
+				var result = patt.test(placeholderText);
+				if(result){
+				  placeholderText = placeholderText.replace('*','') + '<span class="red">*</span>';
+				}									
+				jQuery('select[name="medication_doctor['+new_med_id+']"]').addClass('not-empty');
+				jQuery('<label class="placeHolder active" for="'+ele_id+'">'+placeholderText+'</label>').insertBefore(jQuery('select[name="medication_doctor['+new_med_id+']"]'));
+				jQuery('select[name="medication_doctor['+new_med_id+']"]').parent('.jvFloat').removeClass('sel_wrapper '+cls_wrapper[0]+'_wrapper');
+			}									
+		}
+		else{									
+			jQuery('select[name="medication_doctor['+new_med_id+']"]').removeClass('not-empty');
+			jQuery('label[for="'+ele_id+'"]').remove();
+			jQuery('select[name="medication_doctor['+new_med_id+']"]').parent('.jvFloat').addClass('sel_wrapper '+cls_wrapper[0]+'_wrapper');
+		}
+		console.log('AddANewMedication() - IF');
+	}
+	else{
+		jQuery('select[name="medication_doctor['+new_med_id+']"] option:selected').removeAttr('selected');
+		console.log('AddANewMedication() - ELSE');
+	}
+  
+}
+
+function bindDynamicValidations(){
+    jQuery(".dyn").each(function () {
+		var rules = '';
+		if(jQuery(this).hasClass('dr-phone')){
+			rules = {
+				required: true, phoneUS: true,
+				messages: {
+					required: "This field is required",
+					phoneUS: "Please specify a valid phone number",
+				}
+			}
+		}
+		else{
+			rules = {
+				required: true,
+				messages: {
+					required: "This field is required"
+				}
+			}
+		}
+        jQuery(this).rules("add", rules);
+    });
+}
+
+function UpdateMedication_Old (e) {
+	//update medication data
+
+	var validMed = true;
+	jQuery('.med-data').each(function() {
+		if (jQuery(this).val() == '') {
+			validMed = false;
+		}
+	});
+
+	if (validMed) {
+		var med_id = jQuery('input#med_id').val();
+			//console.log('input[name="medication_name[' + (med_id) + ']"]');
+
+		if (!jQuery('input[name="medication_name[' + (med_id) + ']"]').length) {
+			CreateNewMedicationRow(med_id);
+		}
+
+		jQuery('input[name="medication_name[' + (med_id) + ']"]').val(jQuery('input[name="med_name"]').val());
+		jQuery('input[name="medication_strength[' + (med_id) + ']"]').val(jQuery('input[name="med_strength"]').val());
+		jQuery('input[name="medication_frequency[' + (med_id) + ']"]').val(jQuery('input[name="med_frequency"]').val());
+		jQuery('input[name="medication_doctor[' + (med_id) + ']"]').val(jQuery('select[name="med_doctor"]').val());
+
+		//UpdateMedicationList();
+	}
+}
+
+function UpdateMedication (e) {
+	//update medication data
+
+	//sync doctor data
+	//syncDoctorsData();
+
+	var validMed = true;
+	jQuery('.med-data').each(function() {
+		if (jQuery(this).val() == '') {
+			validMed = false;
+		}
+	});
+
+	if (validMed) {
+		var med_id = jQuery('input#med_id').val();
+			//console.log('input[name="medication_name[' + (med_id) + ']"]');
+
+		if (!jQuery('input[name="medication_name[' + (med_id) + ']"]').length) {
+			CreateNewMedicationRow(med_id);
+		}
+
+		jQuery('input[name="medication_name[' + (med_id) + ']"]').val(jQuery('input[name="med_name"]').val());
+		jQuery('input[name="medication_strength[' + (med_id) + ']"]').val(jQuery('input[name="med_strength"]').val());
+		jQuery('input[name="medication_frequency[' + (med_id) + ']"]').val(jQuery('input[name="med_frequency"]').val());
+		jQuery('input[name="medication_doctor[' + (med_id) + ']"]').val(jQuery('select[name="med_doctor"]').val());
+
+		//UpdateMedicationList();
+	}
+}
+
+function CreateNewMedicationRow (new_med_id) {
+	//add new medication to the form
+	jQuery('<input>').attr('type', 'hidden').attr('name', 'medication_name[' + (new_med_id) + ']').val('').addClass('medication-fields').insertBefore(jQuery('#bSubmit'));
+	jQuery('<input>').attr('type', 'hidden').attr('name', 'medication_strength[' + (new_med_id) + ']').val('').insertBefore(jQuery('#bSubmit'));
+	jQuery('<input>').attr('type', 'hidden').attr('name', 'medication_frequency[' + (new_med_id) + ']').val('').insertBefore(jQuery('#bSubmit'));
+	jQuery('<input>').attr('type', 'hidden').attr('name', 'medication_doctor[' + (new_med_id) + ']').val('').insertBefore(jQuery('#bSubmit'));
+}
+
+function UpdateMedicationList () {
+	jQuery('#medication_list_desktop').remove();
+	jQuery('#medication_list_mobile').remove();
+
+	if (jQuery('input.medication-fields').length > 0) {
+		desktop_medication_list = '\
+					<div id="medication_list_desktop" class="medication_list desktop-only">\
+						<div class="astable_hline"></div>';
+		mobile_medication_list = '\
+					<div id="medication_list_mobile" class="medication_list mobile-only">\
+						<br/><br/>\
+						<p class="no-margin mobile-only">\
+							<label class="astable">Medication</label>\
+						</p>';
+
+		for(med_id = 1; med_id <= jQuery('input.medication-fields').length; med_id++) {
+			doctor_id = jQuery('input[name="medication_doctor[' + med_id + ']"]').val();
+			desktop_medication_list += '<p class="no-margin">\
+											<span class="astable no-overflow">&nbsp;&nbsp;' + jQuery('input[name="medication_name[' + med_id + ']"]').val() + ' (<a href="#" onclick="EditMedication(' + med_id + '); return false;">Edit</a>)</span>\
+											<span class="astable no-overflow">&nbsp;' + jQuery('input[name="medication_strength[' + med_id + ']"]').val() + '</span>\
+											<span class="astable no-overflow">' + jQuery('input[name="medication_frequency[' + med_id + ']"]').val() + '</span>\
+											<span class="astable no-overflow">' + jQuery('input[name="doctor_first_name[' + doctor_id + ']"]').val() + ' ' + jQuery('input[name="doctor_last_name[' + doctor_id + ']"]').val() + '</span>\
+										</p>';
+			mobile_medication_list += '<div class="astable_hline"></div>\
+											<p class="no-margin">\
+												<span class="astable no-overflow">' + jQuery('input[name="medication_name[' + med_id + ']"]').val() + '</span>\
+												<span class="astable_big no-overflow">' + jQuery('input[name="medication_strength[' + med_id + ']"]').val() + ' - ' + jQuery('input[name="medication_frequency[' + med_id + ']"]').val() + '</span>\
+												<span class="astable no-overflow">' + jQuery('input[name="doctor_first_name[' + doctor_id + ']"]').val() + ' ' + jQuery('input[name="doctor_last_name[' + doctor_id + ']"]').val() + '</span>\
+												<span class="astable_small right-alignment"><a href="#" onclick="EditMedication(' + med_id + '); return false;">Edit</a></span>\
+											</p>';
+		}
+
+		desktop_medication_list += '</div>';
+		mobile_medication_list += '</div>';
+		jQuery(desktop_medication_list).insertAfter('#med_id');
+		jQuery(mobile_medication_list).insertAfter('#bAddANewMedication');
+	}
+}
+
+function EditMedication (med_id) {
+	jQuery('input#med_id').val(med_id);
+	jQuery('input[name="med_name"]').val(jQuery('input[name="medication_name[' + (med_id) + ']"]').val());
+	jQuery('input[name="med_strength"]').val(jQuery('input[name="medication_strength[' + (med_id) + ']"]').val());
+	jQuery('input[name="med_frequency"]').val(jQuery('input[name="medication_frequency[' + (med_id) + ']"]').val());
+	jQuery('select[name="med_doctor"]').val(jQuery('input[name="medication_doctor[' + (med_id) + ']"]').val());
+}
+
+function InvalidCreditCard () {
+	jQuery('<div class="red bold align-left">The card you entered is not valid, please enter your card information again or try another payment method.</div><br>').insertBefore('#cc_number_box');
+
+	jQueryValidation_Highlight("input[name='p_cc_number']");
+	jQueryValidation_ShowErrors(jQuery("<label>").attr('for', jQuery("input[name='p_cc_number']").attr('id')).addClass('error').text('Credit Card not valid.'), jQuery("input[name='p_cc_number']"));
+	jQueryValidation_Highlight("input[name='p_cc_exp_date']");
+	jQueryValidation_ShowErrors(jQuery("<label>").attr('for', jQuery("input[name='p_cc_exp_date']").attr('id')).addClass('error').text('Credit Card not valid.'), jQuery("input[name='p_cc_exp_date']"));
+	jQueryValidation_Highlight("input[name='p_cc_cvv']");
+	jQueryValidation_ShowErrors(jQuery("<label>").attr('for', jQuery("input[name='p_cc_cvv']").attr('id')).addClass('error').text('Credit Card not valid.'), jQuery("input[name='p_cc_cvv']"));
+	//jQuery('.payment_method_field').addClass('red');
+
+	first_invalid_row = jQuery("input[name='p_cc_number']");
+	//first_invalid_row.removeClass('correct').removeClass('error').addClass('error');
+	if (first_invalid_row !== false) {
+		jQuery(window).scrollTop(first_invalid_row.position().top - 200);
+		jQuery(window).scrollLeft(0);
+	}
+	first_invalid_row.focus();
+
+}
+
+function RemoveMedication (med_id) {
+	med_row_count = parseInt(jQuery('.med-data').length / 4);
+
+	if (med_row_count > 1) {
+		//remove medication row
+		jQuery('.medication-row').eq(med_id - 1).remove();
+
+		//update the remaining rows
+		med_row_count = parseInt(jQuery('.med-data').length / 4);
+		for (med_row = 1; med_row <= med_row_count; med_row++) {
+			jQuery('.medication-no-field').eq(med_row - 1).text('Medication ' + med_row + ':');
+			jQuery('.medication-name-field').eq(med_row - 1).find('input').attr('name', 'medication_name[' + med_row + ']');
+			jQuery('.medication-strength-field').eq(med_row - 1).find('input').attr('name', 'medication_strength[' + med_row + ']');
+			jQuery('.medication-frequency-field').eq(med_row - 1).find('input').attr('name', 'medication_frequency[' + med_row + ']');
+			jQuery('.medication-doctor-field').eq(med_row - 1).find('select').attr('name', 'medication_doctor[' + med_row + ']');
+		}
+	}
+	else {
+		jQuery('.medication-no-field').eq(0).text('Medication 1:').removeClass('error').removeClass('correct');
+		jQuery('.medication-name-field').eq(0).find('input').attr('name', 'medication_name[1]').val('').removeClass('error').removeClass('correct');
+		jQuery('.medication-strength-field').eq(0).find('input').attr('name', 'medication_strength[1]').val('').removeClass('error').removeClass('correct');
+		jQuery('.medication-frequency-field').eq(0).find('input').attr('name', 'medication_frequency[1]').val('').removeClass('error').removeClass('correct');
+		jQuery('.medication-doctor-field').eq(0).find('select').attr('name', 'medication_doctor[1]').val('').removeClass('error').removeClass('correct');
+	}
+
+	syncMedicationData();
+}
+
+//
+//Leave Application Form functions
+//
+
+jQuery.fn.center = function () {
+	this.css("position","fixed");
+	this.css("top", (jQuery(window).height() / 2) - (this.outerHeight() / 2));
+	this.css("left", (jQuery(window).width() / 2) - (this.outerWidth() / 2));
+	return this;
+}
+
+function preventPageLeave (e) {
+	if (!preventLeave || jQuery(this).hasClass('skipLeave') || jQuery(this).attr('target') == '_blank' || jQuery('#register_form_1').length > 0 || jQuery('#register_form_5').length > 0) {
+		preventLeave = (jQuery(this).hasClass('skipLeave') || jQuery(this).attr('target') == '_blank') ? preventLeave : true;
+	} else if (dataEntered) {
+		if (!window.confirm("Are you sure you want to leave this page?\n\nAll your information will be lost.")) {
+			e.preventDefault();
+		}
+	}
+
+	/*
+	if (!preventLeave || jQuery(this).hasClass('skipLeave') || jQuery(this).attr('target') == '_blank' || jQuery('#register_form_1').length > 0 || jQuery('#register_form_5').length > 0) {
+		preventLeave = (jQuery(this).hasClass('skipLeave') || jQuery(this).attr('target') == '_blank') ? preventLeave : true;
+		//console.log('open', jQuery(this));
+	} else {
+		//console.log('close', jQuery(this));
+		//stop the normal action
+		e.preventDefault();
+
+		//save object and event
+		lastClickedObject = jQuery(this);
+		lastEventType = e.type
+
+		//prevent actions
+		jQuery('#leavePopup').removeClass("no-show");
+		jQuery('#leavePopup .leavePopupContent').center();
+
+		//make sure the second popup it's hidden
+		jQuery('#leavePopup2').addClass("no-show");
+
+		//hide leave form errors
+		jQuery('form#fmLeavePage label.error').hide();
+	}
+	*/
+}
+
+function cancelPageLeave (e) {
+	e.preventDefault();
+
+	preventLeave = false;
+	lastClickedObject = null;
+	lastEventType = null;
+
+	jQuery('#leavePopup').addClass("no-show");
+	jQuery('#leavePopup2').addClass("no-show");
+}
+
+function continuePageLeave (e) {
+	e.preventDefault();
+
+	//hide first popup
+	jQuery('#leavePopup').addClass("no-show");
+
+	//show second popup
+	//jQuery('#leavePopup2').removeClass("no-show");
+	//jQuery('#leavePopup2 .leavePopupContent').center();
+
+	preventLeave = false;
+
+	if (lastEventType == "click" && lastClickedObject.attr('href') != '') {
+		//load url
+		//console.log('continue to ' + lastClickedObject.attr('href'));
+		window.location.href = lastClickedObject.attr('href');
+	} else if (lastEventType == "submit") {
+		//submit the search form
+		searchURL = 'https://prescriptionhope.com/?s=&submit=' + jQuery('form#searchform input#s').val();
+		//console.log('continue to ' + searchURL);
+		window.location.href = searchURL;
+	}
+}
+
+function submitPageLeaveReason (e) {
+	if (jQuery("#fmLeavePage").valid()) {
+		//stop the default form action
+		e.preventDefault();
+
+		//submit the reason to the webservice
+		//jQuery.post('_leave.php', jQuery("#fmLeavePage").serialize());
+
+		jQuery.ajax({
+			type: 'POST',
+			url: '_leave.php',
+			data: jQuery("#fmLeavePage").serialize(),
+			async: false
+		});
+
+		//load the page that user intended to leave to
+		if (lastClickedObject != null) {
+			//continue the original click / submit when the user wanted to leave the page
+			preventLeave = false;
+
+			if (lastEventType == "click" && lastClickedObject.attr('href') != '') {
+				//load url
+				//console.log('continue to ' + lastClickedObject.attr('href'));
+				window.location.href = lastClickedObject.attr('href');
+			} else if (lastEventType == "submit") {
+				//submit the search form
+				searchURL = 'https://prescriptionhope.com/?s=&submit=' + jQuery('form#searchform input#s').val();
+				//console.log('continue to ' + searchURL);
+				window.location.href = searchURL;
+			}
+		}
+
+		//hide popups
+		preventLeave = true;
+		jQuery('#leavePopup').addClass("no-show");
+		jQuery('#leavePopup2').addClass("no-show");
+	}
+}
+
+function preventEnrollmentSubmit () {
+	jQuery('#submitPopup').removeClass("no-show");
+	jQuery('#submitPopup .leavePopupContent').center();
+
+	//make sure the second popup it's hidden
+	jQuery('#submitPopup2').addClass("no-show");
+}
+
+function confirmEnrollmentSubmit (e) {
+	e.preventDefault();
+
+	//hide first popup
+	jQuery('#submitPopup').addClass("no-show");
+
+	//
+	submitConfirmed = true;
+	jQuery("input#bSubmit").trigger('click');
+}
+
+function cancelEnrollmentSubmit (e) {
+	e.preventDefault();
+
+	//hide first popup
+	jQuery('#submitPopup').addClass("no-show");
+
+	//show second popup
+	jQuery('#submitPopup2').removeClass("no-show");
+	jQuery('#submitPopup2 .leavePopupContent').center();
+}
+
+function resetEnrollmentForm (e) {
+	e.preventDefault();
+
+	//hide popups
+	jQuery('#submitPopup').addClass("no-show");
+	jQuery('#submitPopup2').addClass("no-show");
+
+	//
+	window.location.href = 'register.php';
+}
+
+function hideEnrollmentSubmitConfirmation (e) {
+	e.preventDefault();
+
+	//hide popups
+	jQuery('#submitPopup').addClass("no-show");
+	jQuery('#submitPopup2').addClass("no-show");
+}
+
+function updateHearAboutExtras (e) {
+	//destroy previous possible extra elements
+	jQuery('.p_hear_about_extras').remove();
+
+	//get row element
+	hearAboutRow = jQuery(this);
+
+	extra_elems = "";
+	switch (jQuery(this).val()) {
+		case "Insurance":
+			//1 text box
+			extra_elems = '<div class="p_hear_about_extras"><input type="text" data-type="patient" name="p_hear_about_1" value="' + hear_about_extra_1_value + '" placeholder="Insurance Company Name" title="Insurance Company Name" class=""></div>';
+			break;
+
+		case "Pharmacy":
+			//1 text box
+			extra_elems = '<div class="p_hear_about_extras"><input type="text" data-type="patient" name="p_hear_about_1" value="' + hear_about_extra_1_value + '" placeholder="Pharmacy Name" title="Pharmacy Name" class=""></div>';
+			break;
+
+		case "Previous Patient":
+			//1 text box
+			extra_elems = '<div class="p_hear_about_extras"><input type="text" data-type="patient" name="p_hear_about_1" value="' + hear_about_extra_1_value + '" placeholder="Please tell us what caused you to join the Prescription Hope program again." title="Please tell us what caused you to join the Prescription Hope program again." class="" onclick="javascript:showTitle();" id="s_t"></div>';
+			break;
+
+		case "Television":
+			//1 text box
+			extra_elems = '<div class="p_hear_about_extras"><input type="text" data-type="patient" name="p_hear_about_1" value="' + hear_about_extra_1_value + '" placeholder="What network did you see us on?" title="What network did you see us on?" class=""></div>';
+			break;
+
+		case "Internet":
+			//1 text box
+			extra_elems = '<div class="p_hear_about_extras"><input type="text" data-type="patient" name="p_hear_about_1" value="' + hear_about_extra_1_value + '" placeholder="Please provide additional details on how you found the Prescription Hope program online." title="Please provide additional details on how you found the Prescription Hope program online." class="" onclick="javascript:showTitle();" id="s_t"></div>';
+			break;
+
+		case "Other":
+			//1 text box
+			extra_elems = '<div class="p_hear_about_extras"><input type="text" data-type="patient" name="p_hear_about_1" value="' + hear_about_extra_1_value + '" placeholder="Please provide additional details about how you heard about us. *" title="Please provide additional details about how you heard about us. *" class=""  onclick="javascript:showTitle();" id="s_t" required></div>';
+			break;
+
+		case "Healthcare Provider":
+			extra_elems = '<div class="p_hear_about_extras"><input type="text" data-type="patient" name="p_hear_about_1" value="' + hear_about_extra_1_value + '" placeholder="Healthcare Provider Name" class=""></div>';
+			extra_elems += '<div class="p_hear_about_extras"><input type="text" data-type="patient" name="p_hear_about_2" value="' + hear_about_extra_2_value + '" placeholder="Practice your healthcare provider treats you from" title="Practice your healthcare provider treats you from" class="" onclick="javascript:showTitle();" id="s_t"></div>';
+			break;
+
+		case "Referral By Current Member of the Prescription Hope Program":
+			//3 text boxes
+			extra_elems = '<div class="p_hear_about_extras"><input type="text" data-type="patient" name="p_hear_about_1" value="' + hear_about_extra_1_value + '" placeholder="First Name of the person who referred you" title="First Name of the person who referred you" class=""></div>';
+			extra_elems += '<div class="p_hear_about_extras"><input type="text" data-type="patient" name="p_hear_about_2" value="' + hear_about_extra_2_value + '" placeholder="Last Name of the person who referred you" title="Last Name of the person who referred you" class=""></div>';
+			extra_elems += '<div class="p_hear_about_extras"><input type="text" data-type="patient" name="p_hear_about_3" value="' + hear_about_extra_3_value + '" placeholder="' + ((jQuery(window).width() > 1024) ? 'Phone Number of the person who referred you, we would like to thank them for referring you' : 'Phone number of the person who referred you') + '" title="' + ((jQuery(window).width() > 1024) ? 'Phone Number of the person who referred you, we would like to thank them for referring you' : 'Phone number of the person who referred you') + '" class=""></div>';
+			break;
+
+		case "Social Media":
+			//1 drop box
+			extra_elems = '<div class="p_hear_about_extras"><select data-type="patient" name="p_hear_about_1" class="full-width" placeholder="Select ..."><option value=""></option><option value="Facebook">Facebook</option><option value="Twitter">Twitter</option><option value="LinkedIn">LinkedIn</option><option value="Instagram">Instagram</option></select></div>';
+			break;
+
+		case "Paper Mailing":
+			//1 drop down + 1 text box
+			extra_elems = '<div class="p_hear_about_extras"><select data-type="patient" name="p_hear_about_1" class="full-width" placeholder="Select ..." onChange=\'onPaperMailingChange(jQuery(this), "' + hear_about_extra_2_value + '");\'><option value=""></option><option value="Letter">Letter</option><option value="Postcard">Postcard</option></select></div>';
+			break;
+	}
+
+	//add new form elements
+	hearAboutRow.after(extra_elems);
+	jQuery("input[name='p_hear_about_1'],input[name='p_hear_about_2'],input[name='p_hear_about_3'],select[name='p_hear_about_1'],select[name='p_hear_about_2'],select[name='p_hear_about_3']").blur(syncPatientData);
+
+	//if
+	if (jQuery(this).val() == "Referral By Current Member of the Prescription Hope Program") {
+		jQuery("input[name='p_hear_about_3']").mask("999-999-9999", {clearIfNotMatch: true});
+	} else {
+		jQuery("input[name='p_hear_about_3']").unmask();
+	}
+
+	//
+	if (jQuery(this).val() == "Social Media" || jQuery(this).val() == "Paper Mailing") {
+		jQuery('select[name="p_hear_about_1"]').val(hear_about_extra_1_value);
+
+		if (jQuery(this).val() == "Paper Mailing" && hear_about_extra_1_value != "") {
+			onPaperMailingChange(jQuery('select[name="p_hear_about_1"]'), hear_about_extra_2_value);
+		}
+	}
+
+	hear_about_extra_1_value = "";
+	hear_about_extra_2_value = "";
+	hear_about_extra_3_value = "";
+
+	//jQuery('.p_hear_about_extras input,.p_hear_about_extras select').jvFloat();
+	jQuery('.p_hear_about_extras input').jvFloat();
+}
+
+function onPaperMailingChange (elem, elem_value) {
+	if(elem.val() != "" && jQuery('input[name="p_hear_about_2"]').length == 0) {
+		extra_elems = '<div class="p_hear_about_extras"><input type="text" name="p_hear_about_2" value="' + elem_value + '" class="w800 no-margin" placeholder="Is there a code in the bottom-left of the postcard or letter?  If so, please enter it here." title="Is there a code in the bottom-left of the postcard or letter?  If so, please enter it here."></div>';
+		elem.parent().after(extra_elems);
+
+		jQuery('.p_hear_about_extras input[name="p_hear_about_2"]').jvFloat();
+	}
+}
+
+function syncEmail () {
+	jQuery.post("_sync.php", {first_name: jQuery('input[name="first_name"]').val(), middle_initial: jQuery('input[name="middle_initial"]').val(), last_name: jQuery('input[name="last_name"]').val(), email: jQuery('input[name="email"]').val(), type: 'email'})
+	.done(function(response) {
+		//console.log(response);
+	});
+}
+
+function syncPatientData (e) {
+	data_type = jQuery(this).data('type');
+	if (typeof data_type !== typeof undefined && data_type !== false) {
+		// remove correct class from the input field
+		jQuery(this).removeClass('correct');
+		
+		fieldRules = jQuery(this).rules();
+		if ((fieldRules.required === true && jQuery(this).val() != '') || fieldRules.required !== true) {
+			//fieldName = (jQuery(this).attr('name') != 'p_ssn_masked') ? jQuery(this).attr("name") : "p_ssn";
+			//fieldVal = (jQuery(this).attr('name') != 'p_ssn_masked') ? jQuery(this).val() : jQuery('input[name="p_ssn"]').val();
+
+			var fieldName = jQuery(this).attr('name');
+			var fieldVal = jQuery(this).val();
+			switch (fieldName) {
+				case 'p_ssn_masked':
+					fieldName = 'p_ssn';
+					fieldVal = jQuery('input[name="' + fieldName + '"]').val();
+					break;
+
+				case 'p_cc_exp_date':
+					fieldName = 'p_cc_exp_month';
+					fieldVal = jQuery('input[name="' + fieldName + '"]').val();
+					break;
+			}
+
+			jQuery.post("_sync.php", {key: fieldName, value: fieldVal, type: data_type})
+			.done(function(response) {
+				result = JSON.parse(response);
+				//console.log(fieldName, result, result.success);
+				if (fieldName == 'p_ssn' && fieldVal != '') {
+					if(result.success == 1){
+						// add correct class from the input field
+						jQuery("input[name='p_ssn']").addClass('correct');
+					}
+					else {
+						jQuery('label[for="'+jQuery("input[name='p_ssn']").attr('id')+'"].error').remove();
+						jQueryValidation_Highlight(jQuery('input[name="' + fieldName + '"]'));
+						jQueryValidation_ShowErrors(jQuery("<label>").attr('for', jQuery("input[name='p_ssn']").attr('id')).addClass('error').text('This social security number is already in use with a different email. Please try to log into your account with the correct email or contact customer support at 1-877-296-4673 for assistance.'), jQuery("input[name='p_ssn']"));
+						if( !jQuery("input[name='p_ssn']").prevAll('input[type="text"]').hasClass('error') ){
+							jQuery('html, body').animate({
+									scrollTop: (jQuery("input[name='p_ssn']").offset().top-parseInt(200))
+							},500);
+						}						
+					}
+				}
+			});
+
+			//if synced field is the CC exp month, then we have to sync the exp year too
+			if (fieldName == 'p_cc_exp_month') {
+				fieldName = 'p_cc_exp_year';
+				fieldVal = jQuery('input[name="' + fieldName + '"]').val();
+
+				jQuery.post("_sync.php", {key: fieldName, value: fieldVal, type: data_type})
+				.done(function(response) {
+					//console.log(response);
+				});
+			}
+		}
+	}
+}
+
+var lastDoctorsDataSync = 0;
+function syncDoctorsData () {
+	//make sure last sync was over a second ago
+	var d = new Date();
+	var t = d.getTime();
+	if (t - lastDoctorsDataSync > 1000) {
+		lastDoctorsDataSync = t;
+
+		var doctors_data = [];
+		for (dr_id = 1; dr_id <= jQuery('input.doctor-fields').length; dr_id++) {
+			doctors_data[dr_id] = {
+				'first_name': jQuery('input[name="doctor_first_name[' + dr_id + ']"]').val(),
+				'last_name': jQuery('input[name="doctor_last_name[' + dr_id + ']"]').val(),
+				'facility': jQuery('input[name="doctor_facility[' + dr_id + ']"]').val(),
+				'address': jQuery('input[name="doctor_address[' + dr_id + ']"]').val(),
+				'address2': jQuery('input[name="doctor_address2[' + dr_id + ']"]').val(),
+				'city': jQuery('input[name="doctor_city[' + dr_id + ']"]').val(),
+				'state': jQuery('select[name="doctor_state[' + dr_id + ']"]').val(),
+				'zip': jQuery('input[name="doctor_zip[' + dr_id + ']"]').val(),
+				'phone': jQuery('input[name="doctor_phone[' + dr_id + ']"]').val(),
+				'fax': jQuery('input[name="doctor_fax[' + dr_id + ']"]').val()
+			};
+		}
+
+		jQuery.post("_sync.php", {
+			type: 'provider',
+			data: doctors_data
+		}).done(function(response) {
+			//console.log(response);
+		});
+	}
+}
+
+var lastMedicationDataSync = 0;
+function syncMedicationData () {
+	//make sure last sync was over a second ago
+	var d = new Date();
+	var t = d.getTime();
+	if (t - lastMedicationDataSync > 1000) {
+		lastMedicationDataSync = t;
+
+		var has_meds = false;
+		var medication_data = [];
+		for (i = 1; i <= parseInt(jQuery('.med-data').length / 4); i++) {
+			m_medication = jQuery("input[name='medication_name[" + i + "]']").val();
+			m_strength = jQuery("input[name='medication_strength[" + i + "]']").val();
+			m_frequency = jQuery("input[name='medication_frequency[" + i + "]']").val();
+			m_doctor = jQuery("select[name='medication_doctor[" + i + "]']").val();
+
+			//if there is any info on this line, then check if we have all the required information
+			if (m_medication || m_strength || m_frequency || m_doctor) {
+				validMed = (m_doctor && m_doctor > 0 && m_doctor != '' && m_medication && isAscii(m_medication) && m_strength && isAscii(m_strength) && m_frequency && isAscii(m_frequency)) ? true : false;
+				if (validMed) {
+					medication_data[i] = {
+						'name': m_medication,
+						'strength': m_strength,
+						'frequency': m_frequency,
+						'provider': m_doctor
+					};
+
+					has_meds = true;
+				}
+			}
+		}
+
+		//
+		$('#payment-information-medication-list').html('');
+		$('#payment-information-medication-list-text').html('');
+
+		if (has_meds) {
+			//sync with form (payment information section)
+			med_no = 0;
+			for (i in medication_data) {
+				$('#payment-information-medication-list').append('' +
+					'<div class="left width-400 align-left">' + medication_data[i].name + '</div>' +
+					'<div class="left width-60 align-right">$' + med_rate + '</div>' +
+					'<div class="left width-40"><a href="" onclick="RemoveMedication(' + i + '); return false;">x</a></div>' +
+					'<div class="clear"></div>');
+
+				med_no++;
+			}
+			$('#payment-information-medication-list').append('' +
+				'<div class="left width-400 align-left bold">TOTAL</div>' +
+				'<div class="left width-60 align-right bold">$' + med_no * med_rate + '</div>' +
+				'<div class="clear"></div>');
+
+			$('#payment-information-medication-list-text').html('<p class="normal align-left">Once your payment method is submitted, we will begin working immediately to get you approved for your requested medications. In the event we are able to provide access to all ' + med_no + ' of your medication' + ((med_no > 1) ? 's' : '') + ', your <strong>total monthly service fee</strong> will be <strong>$' + med_no * med_rate + '</strong>.</p>');
+
+			//sync with RXI
+			jQuery.post("_sync.php", {
+				type: 'medication',
+				data: medication_data
+			}).done(function(response) {
+				//console.log(response);
+			});
+		}
+	}
+}
+
+function getUserSecurityQuestion (e) {
+	email_value = jQuery("input#email_address").val();
+	if (email_value != "") {
+		jQuery.post("_ajax_request.php", {action: "get_security_question", data: {email: email_value}})
+		.done(function(response) {
+			response = JSON.parse(response);
+			if (response.success == 1) {
+				jQuery("select#security_question").val(response.question);
+				jQuery('label[for="' + jQuery("select#security_question").attr('id') + '"]').toggleClass('active', true);
+				jQuery("select#security_question").toggleClass('not-empty', true);
+			} else if (jQuery("select#security_question").val() != "") {
+				jQuery("select#security_question").val("");
+			}
+		});
+	}
+}
+
+function showTooltipsIcons () {
+	if (jQuery(this).data("hint") != "") {
+		jQuery("<a class='tooltip-icon'></a>").attr('data-tooltip', jQuery(this).data('hint')).hover(showTooltipBox, hideTooltipBox).insertAfter(jQuery(this));
+	}
+}
+
+// To show tooltip text instead of icon
+function showTooltipsText () {
+	if (jQuery(this).data("hint") != "" && jQuery(this).data("text")!='') {
+		jQuery("<a class='tooltip-text'>"+jQuery(this).data("text")+"</a>").attr('data-tooltip', jQuery(this).data('hint')).hover(showTooltipBox, hideTooltipBox).insertAfter(jQuery(this));
+	}
+}
+
+function showTooltipBox (e) {
+	if (jQuery(this).data("tooltip") != "") {
+		if (jQuery(this).data("tooltip").substring(0, 7) == 'images/') {
+			tooltipHTML = "<div class='tooltip-new'><img src='"+ jQuery(this).data("tooltip") +"' class='tooltip-img' /></div>";
+		} else {
+			tooltipHTML = "<div class='tooltip-new'>" + jQuery(this).data("tooltip") + "</div>";
+		}
+
+		if (jQuery("#register_form").length > 0) {
+			jQuery("#register_form").append(tooltipHTML);
+		} else {
+			jQuery(this).parent().append(tooltipHTML);
+		}
+
+		pos = (jQuery(this).hasClass('tooltip-icon')) ? jQuery(this).parent().position() : jQuery(this).position();
+		width = (jQuery(this).hasClass('tooltip-icon')) ? jQuery(this).parent().width() : jQuery(this).width();
+		height = (jQuery(this).hasClass('tooltip-icon')) ? jQuery(this).parent().height() : jQuery(this).height();
+		max_width = jQuery('body').width() - pos.left - width - 15;
+		topVal = ((jQuery(this).hasClass('tooltip-icon')) ? pos.top : (pos.top - 10));         
+
+		// for tooltips with text label
+		pos = (jQuery(this).hasClass('tooltip-text')) ? jQuery(this).parent().position() : pos;
+		width = (jQuery(this).hasClass('tooltip-text')) ? jQuery(this).parent().width() : width;
+		height = (jQuery(this).hasClass('tooltip-text')) ? jQuery(this).parent().height()+parseInt(10) : height;
+		topVal = (jQuery(this).hasClass('tooltip-text')) ? pos.top : topVal;
+		
+		//leftVal = pos.left + width + 15;
+        leftVal = pos.left;
+		topVal = parseInt(topVal)+parseInt(parseInt(height)-parseInt(15));
+        width = (width<50) ? parseInt(300)+parseInt(width) : width;
+		
+        if (jQuery(this).data("tooltip").substring(0, 7) == 'images/') { topVal += 50;}
+		
+		if (jQuery(window).width() < 1024) { console.log('wd<1024');
+			//mobile
+			topVal = (jQuery(this).hasClass('tooltip-icon')) ? pos.top + 50 : pos.top + height + 30;
+			leftVal = (jQuery(this).hasClass('tooltip-icon') || jQuery(this).hasClass('tooltip-text')) ? pos.left : 0;
+			max_width = jQuery('body').width() - (pos.left * 2) - 15;
+			
+			if(jQuery(this).hasClass('tooltip-text')){
+				topVal = parseInt(topVal)+parseInt(0);
+			}
+		}
+		else{
+			if(jQuery(this).hasClass('tooltip-text')){
+				topVal = parseInt(topVal)+parseInt(30);
+			}
+		}
+		
+        
+        if(jQuery(this).hasClass('medication_list_tt')){
+            if (jQuery(window).width() < 768) {
+                leftVal = jQuery('.medication_list').offset().left;
+            }
+            if (jQuery(window).width() >= 768 && jQuery(window).width() < 1024) {
+                leftVal = jQuery('.medication_list').offset().left+parseInt(300);
+            }
+            if (jQuery(window).width() <= 1024) {
+                topVal = topVal+parseInt(50);
+            }
+        }
+		
+        // if it is one My-account page
+        if(jQuery(this).hasClass('homeBox')){
+            topVal = pos.top + height + 80;
+        }
+
+		jQuery(".tooltip-new")
+			.css("top", topVal + "px")
+			.css("left", leftVal + "px")
+			//.css("max-width", max_width + "px")
+            .css("width", width + "px")
+			.fadeIn("fast");
+
+		if (jQuery(this).data("tooltip").substring(0, 7) == 'images/') {
+            if (jQuery(window).width() <= 600) {
+                jQuery(".tooltip-new").css("width", "88%").css("left", "6%");
+            }
+            else{
+                jQuery(".tooltip-new").css("width", "auto").css("left",jQuery(this).position().left-200+'px');
+            }			
+		}
+	}
+}
+
+function hideTooltipBox () {
+	if (jQuery(this).data("tooltip") != "") {
+		jQuery(".tooltip-new").remove();
+	}
+}
+
+var geolocate_patient;
+var geolocate_doctor = new Array;
+var geolocate_options = { componentRestrictions: {country: ["us","pr"]} };
+function initializeGoogleGeoLocation () {
+	geolocate_patient = new google.maps.places.Autocomplete(document.getElementById('p_address'), geolocate_options);
+	geolocate_patient.addListener('place_changed', function () {fillInAddress(geolocate_patient, 'patient', 0);});
+
+	jQuery('.dr-address').each(function (index, elem) {
+		//dr_key = geolocate_doctor.length;
+		rs = /\[([^)]+)\]/.exec(jQuery(elem).attr('name'));
+		dr_key = rs[1];
+
+		initializeDoctorAddressElementGeoLocation(elem, dr_key);
+		//geolocate_doctor[dr_key] = new google.maps.places.Autocomplete(elem, geolocate_options);
+		//geolocate_doctor[dr_key].addListener('place_changed', function () {fillInAddress(geolocate_doctor[dr_key], 'doctor', dr_key);});
+	})
+}
+
+function initializeDoctorAddressElementGeoLocation (elem, dr_key) {
+	geolocate_doctor[dr_key] = new google.maps.places.Autocomplete(elem, geolocate_options);
+	geolocate_doctor[dr_key].addListener('place_changed', function () {fillInAddress(geolocate_doctor[dr_key], 'doctor', dr_key);});
+}
+
+function fillInAddress (geolocate, type, el_key) {
+	// Get the place details from the geolocate object.
+	var place = geolocate.getPlace();
+
+	address_value = '';
+	address2_value = '';
+	city_value = '';
+	state_value = '';
+	zip_value = '';
+	country_value = 'US';
+
+	if(typeof place.address_components !== undefined){	
+		// Get each component of the address from the place details and fill the corresponding field on the form.
+		for (var i = 0; i < place.address_components.length; i++) {
+			address_val = place.address_components[i]['short_name'];
+	
+			switch (place.address_components[i].types[0]) {
+				case 'street_number':
+					address_value = address_val;
+					address2_value = address_val;
+					break;
+	
+				case 'route':
+					address_value = address_value + ' ' + address_val;
+					break;
+	
+				case 'locality':
+					city_value = address_val;
+					break;
+	
+				case 'administrative_area_level_1':
+					state_value = address_val;
+					break;
+				
+				case 'country':
+					country_value = address_val;
+					break;
+	
+				case 'postal_code':
+					zip_value = address_val;
+					break;
+			}
+
+			if(country_value == 'PR'){
+				city_value = (city_value=='') ? state_value : city_value;
+				state_value = country_value;
+			}
+			
+			if (type == 'patient') {
+				patient_new_address_selected = true;
+				jQuery('input[name="p_address"]').val(address_value).trigger('blur');
+				jQuery('input[name="p_city"]').val(city_value).trigger('blur');
+				jQuery('select[name="p_state"]').val(state_value).trigger('change').trigger('blur');
+				jQuery('input[name="p_zip"]').val(zip_value).trigger('blur');
+				jQuery('input[name="p_address2"]').focus();
+			}
+
+			if (type == 'doctor') {
+				doctor_new_address_selected = true;
+				jQuery('input[name="doctor_address[' + el_key + ']"]').val(address_value).trigger('blur');
+				jQuery('input[name="doctor_city[' + el_key + ']"]').val(city_value).trigger('blur');
+				jQuery('select[name="doctor_state[' + el_key + ']"]').val(state_value).trigger('change').trigger('blur');
+				jQuery('input[name="doctor_zip[' + el_key + ']"]').val(zip_value).trigger('blur');
+				jQuery('input[name="doctor_address2[' + el_key + ']"]').focus();
+			}
+		}
+	}
+}
+
+function detectCardType (cardNum) {
+	var payCardType = "";
+	var regexMap = [
+		{regEx: /^4[0-9]{5}/ig,cardType: "Visa"},
+		{regEx: /^5[1-5][0-9]{4}/ig,cardType: "Mastercard"},
+		{regEx: /^3[47][0-9]{3}/ig,cardType: "American Express"},
+		{regEx: /^6(?:011|5[0-9]{2})[0-9]{3,}/ig,cardType: "Discover"}
+	];
+
+	for (var j = 0; j < regexMap.length; j++) {
+		if (cardNum.match(regexMap[j].regEx)) {
+			payCardType = regexMap[j].cardType;
+			break;
+		}
+	}
+
+	return payCardType;
+}
+
+function updateCardType () {
+	ccType = detectCardType(jQuery(this).val());
+	jQuery('input[name="p_cc_type"]').val(ccType);
+
+	//apply logo on the cc number field
+	ccClass = '';
+	switch (ccType) {
+		case "Visa":
+			ccClass = 'cc_visa_no';
+			break;
+		case "Mastercard":
+			ccClass = 'cc_mastercard_no';
+			break;
+		case "American Express":
+			ccClass = 'cc_amex_no';
+			break;
+		case "Discover":
+			ccClass = 'cc_discover_no';
+			break;
+	}
+
+	jQuery('.cc-type-icon').remove();
+	if (ccClass != '') {
+		jQuery("<div class='cc-type-icon " + ccClass + "'></div>").insertAfter(jQuery(this));
+	}
+}
+
+function adjustScroll() {
+	//if (first_invalid_element.prop('nodeName') == 'INPUT' && (first_invalid_element.attr('type') == 'radio' || first_invalid_element.attr('type') == 'checkbox')) {
+		var y = jQuery(window).scrollTop();  //your current y position on the page
+		jQuery(window).scrollTop(y - 50);
+	//}
+
+	//adjust scroll for IE/Edge browsers
+	if (document.documentMode || /Edge/.test(navigator.userAgent)) {
+		jQuery(window).scrollTop(y - 200);
+	}
+}
+
+function showTitle(){
+    if (jQuery(window).width() < 767) {
+        jQuery('#showtitle').remove();
+        jQuery('<div id="showtitle">'+jQuery('#s_t').attr('title')+'</div>').insertAfter(jQuery('#s_t'));
+        jQuery('#showtitle').fadeOut(10000);
+    }    
+}
+function showMedicationList(){
+    var cur_med_name = jQuery(this).val().trim();
+    var cur_med_id = (jQuery(this).closest('.medication-row').attr('id')).replace('mb',''); 
+    cur_med_id = jQuery.trim(cur_med_id);
+	
+	var ct_med = '';
+	var ct_med_s = '';
+	var ct_med_txt = '';
+    
+    if(cur_med_id>0 && jQuery('#tr'+cur_med_id).length>0){
+        if(cur_med_name!=''){
+            jQuery('#tr'+cur_med_id).html('<td>'+cur_med_name+'</td><td>$50.00</td>');
+        }
+        else{			 
+			if(jQuery('.m-list').length>1){
+				ct_med = 'all <strong>'+jQuery('.m-list').length+'</strong> of';
+				ct_med_s = 's';
+				ct_med_txt = jQuery('.m-list').length+' medications';
+			}
+			else if(jQuery('.m-list').length==1){
+				ct_med_txt = '1 medication';
+			}
+			jQuery('.ct_med_s').html(ct_med_s);
+            jQuery('#med-list-box .total_str, #med_info .total_str').html('$'+(jQuery('.m-list').length)*50+'.00');
+            //var ct_med = (jQuery('.m-list').length>1) ? ' '+jQuery('.m-list').length : '';
+            jQuery('#med-list-box .ct_med, #med_info .ct_med').html(ct_med);
+            //var ct_med_txt= (jQuery('.m-list').length>1) ? jQuery('.m-list').length+' medications' : (jQuery('.m-list').length==1) ? '1 medication' : '';
+            jQuery('#med_info .ct_med_txt').html(ct_med_txt);            
+            jQuery('#tr'+cur_med_id).remove();
+        }
+    }
+    else{
+        if(cur_med_name!='' && cur_med_id>0){
+			 jQuery('<tr class="m-list" id="tr'+cur_med_id+'"><td>'+cur_med_name+'</td><td>$50.00</td></tr>').insertBefore(jQuery('#med_list').find('.total'));
+			if(jQuery('.m-list').length>1){
+				ct_med = 'all <strong>'+jQuery('.m-list').length+'</strong> of';
+				ct_med_s = 's';
+				ct_med_txt = jQuery('.m-list').length+' medications';
+			}
+			else if(jQuery('.m-list').length==1){
+				ct_med_txt = '1 medication';
+			}
+			jQuery('.ct_med_s').html(ct_med_s);           
+            jQuery('#med-list-box .total_str, #med_info .total_str').html('$'+(jQuery('.m-list').length)*50+'.00');
+            //var ct_med = (jQuery('.m-list').length>1) ? ' '+jQuery('.m-list').length : '';
+            jQuery('#med-list-box .ct_med, #med_info .ct_med').html(ct_med);
+            //var ct_med_txt= (jQuery('.m-list').length>1) ? jQuery('.m-list').length+' medications' : (jQuery('.m-list').length==1) ? '1 medication' : '';
+            jQuery('#med_info .ct_med_txt').html(ct_med_txt);  
+        }
+    } 
+    
+    // show only if any row is filled with values
+    if(jQuery('.m-list').length>0){
+        jQuery('#med-list-box').show();
+        jQuery('#med_info').show();        
+    }
+}
+
+function checkSSN(){
+	var fieldVal = jQuery('input[name="p_ssn"]').val();
+	if(fieldVal!='') {
+		jQuery.post("_sync.php", {key: 'p_ssn', value: fieldVal, type: 'patient'})
+		.done(function(response) {
+			result = JSON.parse(response);			
+			if (result.success == 0) {
+				jQuery('label[for="'+jQuery("input[name='p_ssn']").attr('id')+'"].error').remove();
+				jQueryValidation_Highlight(jQuery('input[name="p_ssn"]'));
+				jQueryValidation_ShowErrors(jQuery("<label>").attr('for', jQuery("input[name='p_ssn']").attr('id')).addClass('error').text('This social security number is already in use with a different email. Please try to log into your account with the correct email or contact customer support at 1-877-296-4673 for assistance.'), jQuery("input[name='p_ssn']"));
+				if( !jQuery("input[name='p_ssn']").prevAll('input[type="text"]').hasClass('error') ){
+					jQuery('html, body').animate({
+							scrollTop: (jQuery("input[name='p_ssn']").offset().top-parseInt(200))
+					},500);
+				}
+				return false;
+			}
+			else{
+				// add correct class from the input field
+				jQuery("input[name='p_ssn']").addClass('correct');
+				return true;
+			}
+		});
+	}	
+}

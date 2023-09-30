@@ -1,0 +1,1004 @@
+html {
+	height: 100%;
+}
+
+body{
+	height: 100%;
+	font-family: 'Raleway', sans-serif !important;
+    padding-top: 140px;
+}
+::-webkit-input-placeholder {
+   color:transparent;
+}
+#page-container {
+	position: relative;
+	min-height: calc(100% - 20px);
+}
+
+.header{
+	padding-bottom: 15px;
+	border-bottom: 1px solid #c8c8c8 !important;
+}
+
+.header_inner{
+	max-width: 1250px;
+	margin: 0px auto 0px;
+}
+
+#main_content{
+	max-width: 100%;
+	margin: 0px auto 0px;
+	
+}
+.w100{width:100%;}
+.content{
+	background: transparent;
+}
+
+/*#footer-wrapper {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	/*height: 249px;*/
+}*/
+
+.bold-100 {
+	font-weight: 100;
+}
+.bold-200 {
+	font-weight: 200;
+}
+.bold-300 {
+	font-weight: 300;
+}
+.bold-400 {
+	font-weight: 400;
+}
+.bold-500 {
+	font-weight: 500;
+}
+.bold-600 {
+	font-weight: 600;
+}
+.bold-700 {
+	font-weight: 700;
+}
+.bold-800 {
+	font-weight: 800;
+}
+.bold-900 {
+	font-weight: 900;
+}
+
+.border-radius-5 {
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+
+input{
+}
+
+input#schedule_date {
+	width: 50%;
+}
+
+select.login-portal {
+	padding: 10px;
+	height: 42px;
+}
+
+.loginRight{
+	padding: 0px 30px;
+}
+
+.loginRight{
+	border-left:1px solid #c8c8c8;
+	min-height:650px;
+}
+
+label{
+	float: none;
+	display: inline;
+	width: auto !important;
+}
+
+.medium{
+	font-size: 17px;
+}
+
+.full-width{
+	width: 100% !important;
+}
+
+h2{
+	color:#59afe5 !important;
+	text-transform: none !important;
+	letter-spacing: 0em;
+	font-weight: 700 !important;
+}
+
+input[type="submit"], input[type="button"], a.big-button {
+	background: #59afe5;
+	color: #FFF;
+	/*border-radius: 0px !important;*/
+	border: none !important;
+	width: 800px;
+	max-width: 100%;
+}
+
+.gray-button{
+	background: #666666 !important;
+}
+
+a.big-button{
+	padding: 12px 25px !important;
+}
+
+.content-box{
+	border: 1px solid #c8c8c8;
+}
+
+a.homeBox{
+	display: inline-block;
+	width: 100%;
+	height: 180px;
+	padding-top: 80px;
+	text-align: center;
+	font-weight: 700;
+	cursor: pointer;
+	font-size: 17px;
+	font-weight: 800;
+}
+
+a.homeBlueBox{
+	color: #59afe5;
+	border: 0px solid #c8c8c8;
+	background-color: #eff6fb;
+	box-shadow: 0 0px 9px 2px #999;
+}
+
+a.homeBlueBox:hover{
+	color: #FFF;
+	background-color: rgba(91,177,229,0.55);
+	text-decoration: none;
+}
+
+a.homeLightBlueBox{
+	color: #59afe5;
+	border: 0px solid #c8c8c8;
+	background-color: #fcfeff;
+	box-shadow: 0 0px 9px 2px #999;
+}
+
+a.homeLightBlueBox:hover{
+	color: #FFF;
+	background-color: rgba(91,177,229,0.55);
+	text-decoration: none;
+}
+
+a.no-hover:hover{
+	color: #59afe5;
+	background-color: #eff6fb;
+}
+
+a.homeWarningBox{
+	color: #ff0000;
+	border: 1px solid #ff0000;
+	background-color: #ffe6e6;
+}
+
+a.homeWarningBox:hover, a.homeWarningBox:focus{
+	color: #ffffff;
+	background-color: rgba(255,100,100,0.55);
+}
+
+.homeBoxList {
+	font-size:12px;
+	font-weight:700;
+	text-align: left;
+}
+
+.homeBoxNotice {
+	display: inline-block;
+	position:absolute;
+	bottom:10px;
+	left:35px;
+	margin:0px;
+	font-size:10px;
+}
+
+.homeBoxNoticeIcon {
+	padding: 0;
+}
+
+.homeBoxNoticeText {
+	padding: 2px 0 0 5px !important;
+	white-space: nowrap;
+}
+
+.boxInactive:hover{
+	background-color: #eff6fb;
+	color: #59afe5;
+	cursor: default;
+}
+
+.loginLeft{
+	padding: 5px 25px;
+}
+
+.shield {
+	width: 120px !important;
+}
+
+.messagebox{
+	background: #eff7fd;
+	color: #66b7e1;
+	max-width: 1200px;
+	text-align: left;
+	padding: 25px;
+	border: 1px solid #c8c8c8;
+	padding-top: 5px;
+}
+.messagebox.welcome{max-width: 100%; margin: 0 5px;}
+.footer{
+	max-width: 1250px;
+	margin: 0px auto 0px;
+	padding: 20px 0 40px 0;
+	border-top: 1px solid #c8c8c8;
+}
+
+.header_icon_box{
+	background: #5ab0e4;
+	padding: 28px 15px;
+	border: 1px solid #5ab0e4;
+}
+
+.header_icon_box_off{
+	background: #eff7fd;
+	padding: 28px 15px;
+	border: 1px solid #c8c8c8;
+}
+
+.contentHeader{
+	font-weight: 700;
+	font-size: 20px;
+	border-bottom: 1px solid #c8c8c8;
+	padding-bottom: 17px;
+	margin-bottom: 17px;
+}
+
+.contentSubHeader{
+	font-weight: 700;
+	font-size: 14px;
+	border-bottom: 1px solid #c8c8c8;
+	padding-bottom: 8px;
+	margin-bottom: 8px;
+}
+
+a.contentHeaderLink{
+	color: #6699CC;
+	font-size: 14px;
+}
+
+.orangeButton{
+	background: #f9a15d !important;
+}
+
+.alignRight{
+	text-align: right;
+}
+
+.smColRight{
+	text-align: right;
+}
+
+.big-button{
+	letter-spacing: 0.04em !important;
+}
+
+.rightColumn{
+	padding-left: 30px;
+	margin-left: 0px;
+	border-left: 1px solid #c8c8c8;
+}
+
+.leftDarkBox{
+	width: 236px;
+	background: #5ab0e4;
+	color: #FFF;
+	text-align: center;
+	font-weight: 200;
+	margin-right: 7px;
+	margin-top: 10px;
+	padding: 15px 10px 0 10px;
+}
+
+.noMargin{
+	margin: 0px;
+	padding: 0px;
+}
+
+.no-top-margin {
+	margin-top: 0px;
+}
+
+.no-bottom-margin {
+	margin-bottom: 0px !important;
+}
+
+.extra-top-margin {
+	margin-top: 15px !important;
+}
+
+a.whiteButton{
+	background: #FFF;
+	color: #5ab0e4;
+	border: 1px solid #5ab0e4 !important;
+}
+
+a.whiteButtonSM{
+	background: #FFF;
+	color: #5ab0e4;
+	border: 1px solid #5ab0e4 !important;
+}
+
+a.big-button-sm
+{
+	background: #FFF;
+	color: #59afe5;
+	border-radius: 0px !important;
+	border: none !important;
+	width: 100%;
+	padding: 5px;
+	border: 1px solid #5ab0e4 !important;
+}
+
+a.small-button
+{
+	width: auto;
+	padding: 5px;
+	border: none !important;
+	border-radius: 0px !important;
+	background: #FFF;
+	color: #5ab0e4;
+	font-weight: 700;
+	letter-spacing: 0.04em !important;
+}
+
+.medRow{
+	padding: 15px 15px 0px 15px;
+	margin-bottom: 15px;
+	border: 1px solid #c8c8c8;
+	background: #f5f5f5;
+	background-image: linear-gradient(0deg, #e4e4e4 0%, #f9f9f9 50%, #e4e4e4 100%);
+	background-repeat: no-repeat;
+	background-position: left top;
+	background-size: 100% 87px;
+}
+
+.medRowTop{
+	padding-bottom: 15px;
+}
+
+.medDetailRow{
+	padding: 30px 0px;
+	border-top: 1px solid #c8c8c8;
+	background: #f5f5f5;
+}
+
+.red {
+    color: #e87f21 !important;
+    font-size: 21px;
+    position: relative;
+    top: 4px;
+    left: -3px;font-weight: normal;
+}
+
+a {
+	/*text-decoration: none !important;*/
+}
+
+.redMedNoticeBox{
+	background: #dd0000;
+	color: #FFF;
+	margin: 0px 15px 20px 15px;
+	border: 1px solid #dd0000;
+}
+
+.yellowMedNoticeBox{
+	background: #ffcc00;
+	color: #444;
+	margin: 0px 15px 20px 15px;
+	border: 1px solid #ffcc00;
+}
+
+.twoColumnContainer{
+	padding:0px;width:1240px;
+}
+
+#dragandrophandler{
+	width:400px;
+	height:250px;
+	margin:0 auto 10px auto;
+	padding:10px;
+	border:3px dashed #ccc;
+	/*color:#FFF;*/
+	font-size:120%;
+	font-weight: 300;
+	text-align:center;
+	vertical-align:middle;
+}
+
+#dragandrophandler input[type="file"] {
+	width: 60%;
+	margin: 0 auto;
+}
+
+#overlay{
+	display: none;
+	width:100%;
+	height:100%;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	z-index: 1000000;
+	background: rgba(50,140,220,0.85);
+}
+
+#overlay_holder {
+	width: 1000px;
+	height: 100%;
+
+	position:absolute; /*it can be fixed too*/
+	left:0; right:0;
+	top:0; bottom:0;
+	margin:auto;
+
+	/*this to solve "the content will not be cut when the window is smaller than the content": */
+	max-width:100%;
+	max-height:100%;
+	overflow:auto;
+
+	color: #FFF;
+}
+
+.overlay_content{
+	display: none;
+}
+
+.overlay_loaded_content {
+	width: 800px;
+	margin: 0 auto;
+}
+
+.overlay_form{
+	width: 800px;
+	background: #f5f5f5;
+	color: #111;
+	padding: 25px;
+	text-align: left;
+}
+
+.overlay_form, #overlay_holder{
+	overflow: visible !important;
+}
+
+.overlay_form_buttons {
+	margin: 30px 0;
+}
+
+.zeroed{
+	padding: 0px;
+	margin: 0px;
+	margin-bottom: 10px;
+}
+
+.autowidth{
+	width: 100% !important;
+}
+
+.alignLeft{
+	text-align: left;
+}
+
+.accountIconBg{
+	background-image: url('../images/icon_folder_big.png');
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+.accountIconBgRed{
+	background-image: url('../images/icon_folder_big_red.png');
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+.medIconBg{
+	background-image: url('../images/icon_pill_big.png');
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+.medIconBgRed{
+	background-image: url('../images/icon_pill_big_red.png');
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+.providerIconBg{
+	background-image: url('../images/icon_heart_big.png');
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+span.question {
+  cursor: pointer;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-color: #59afe5;
+  line-height: 16px;
+  color: White;
+  font-size: 13px;
+  font-weight: bold;
+  border-radius: 8px;
+  text-align: center;
+  position: relative;
+	margin: 0px 5px;
+}
+span.question:hover { background-color: #3D6199; }
+
+div.tooltipBox {
+  background-color: #eff7fd;
+  color: #111;
+  font-weight: 400;
+  position: absolute;
+  left: 25px;
+  top: -25px;
+  z-index: 1000000;
+  min-width: 250px;
+  border-radius: 2px;
+  text-align: left;
+  box-shadow: 0px 2px 10px #6699CC;
+  font-size: 12px;
+}
+div.tooltipBox:before {
+  border-color: transparent #eff7fd transparent transparent;
+  border-right: 6px solid #eff7fd;
+  border-style: solid;
+  border-width: 6px 6px 6px 0px;
+  content: "";
+  display: block;
+  height: 0;
+  width: 0;
+  line-height: 0;
+  position: absolute;
+  top: 40%;
+  left: -6px;
+}
+div.tooltipBox p {
+  margin: 15px;
+  color: #000;
+}
+
+.tooltip_templates{
+	display: none;
+}
+
+.leftIconBox{
+	min-width: 280px !important;
+}
+
+.pageTitleBox{
+	width: 820px !important;
+}
+
+.blue-button{
+	background: #59afe5;
+}
+
+.loginPanel{
+	padding: 0px 25px;
+}
+
+.loginPageButton{
+	width:100%;
+	color:#FFF;
+	text-transform:uppercase;
+	border:none;
+	padding:15px 10px;
+	font-weight:700;
+}
+
+.noMobile{
+	display: inline;
+}
+
+.onlyMobile{
+	display: none;
+}
+
+.headerRight{
+	text-align:right;
+	padding-top:30px;
+}
+
+.phonelink{
+	color:#59afe5 !important;
+}
+
+.medWithNotice{
+	color: #ff0000;
+	font-weight: 700;
+}
+
+.dark-red{
+	color: #ff0000;
+}
+
+.dark-red-bg {
+	padding: 7px;
+	background-color: #ff0000;
+	color: #fff;
+}
+
+.dark-red-bg a, .dark-red-bg a:hover {
+	color: #fff;
+}
+
+.text-16 {
+	font-size: 16px;
+}
+
+.text-18 {
+	font-size: 18px;
+}
+
+.leftDarkBox h3{
+	font-size: 22px;
+}
+
+.row.no-row-gutter [class*='col-']:first-child {
+	padding-left: 0;
+}
+
+.row.no-row-gutter [class*='col-']:last-child {
+	padding-right: 0;
+}
+
+.homeBoxNotice .row [class*='col-'] {
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.lightblue{
+	font-size: 14px;
+	color: #5fb3e5;
+	line-height: 18px;
+	margin: 0px;
+	font-weight: 600;
+}
+
+.createAccountBox{
+	/*border: 1px solid #ccc;*/
+	/*background: #eff6fc;*/
+	width: 100%;
+	float:left;
+	margin:0px auto 0px;
+}
+
+.createAccountBox.fp {max-width: 800px;}
+.forminputsection{
+	border-bottom: 1px solid #ccc;
+	padding-bottom: 15px;
+	margin-bottom: 15px;
+}
+
+.createAccountBoxFooter{
+	max-width: 800px;
+	margin:3px auto 0px;
+	padding: 0 25px 35px 25px;
+}
+
+.btAddMedication {
+	display: inline-block;
+	width: auto !important;
+	margin-top: 20px;
+}
+
+img.link-sep {
+	height: 55px;
+}
+
+#formNewProvider {
+	display: none;
+	margin-top: 30px;
+	padding-top: 20px;
+	border-top: 1px solid #ccc;
+}
+.grecaptcha-badge{z-index: 9999;}
+.owl-carousel .owl-item img{width: auto;}
+/********* enroll/application form  ********/
+h2.dblue-text.no-text-transformation {
+    color: #1765AD;
+    font-family: Raleway;
+    font-size: 30px;
+    font-weight: bold;
+    line-height: 31px;
+    text-align: center;
+	text-transform:capitalize;
+}
+
+.intrinsic-container-16x9 {
+    max-width: 750;
+    max-height: 422px;
+    margin: 0 auto;
+}
+.video-panel{margin: 40px auto 115px; border:20px solid  #fff;height: 464px;max-height: 464px;	width: 792px;	background-color: #FFFFFF;	box-shadow: 3px 9px 46px 14px rgba(0,0,0,0.21);max-width: 100%;
+    max-height: max-content;}
+
+div#applicationForm {
+    width: 100%;
+    float: left;
+}
+
+p.moduleSubheader{color: #54646F;	font-family: Raleway;	font-size: 16px;	line-height: 28px;	text-align: center;}
+
+
+h2.dblue-text.no-text-transformation.m20 {
+    text-transform: capitalize;
+}
+.m20 {
+    margin-top: 50px;
+    margin-bottom: 20px;
+}
+
+input.correct, select.correct{background: #fff url(../images/check-circle.svg) no-repeat 94% 50%;}
+
+input, select{height:53px !important;}
+
+.text-blue{ color: #1765AD;}
+label.invalid-field, #fmRegister label.error {
+	display: inline;
+	margin-bottom: 0px;
+	padding: 8px 0px 8px 0px;
+	font-size: 13px !important;
+	font-weight: normal;
+	text-align: left;
+	color:#e87f21;
+	border-radius: 0 0 6px 6px;
+	line-height:16px;
+	display:block;}
+
+input:not([type=checkbox]):not([type=radio]).error, select.error {
+	color: #54646f;
+	margin-bottom: 0px;
+	
+
+	
+}
+
+input[type="text"], input[type="tel"], input[type="password"], select {
+	width: 100%;
+	/*margin-bottom: 30px;*/
+	padding: 13px 10px 13px 10px;
+	line-height: 20px;
+	border: 1px solid #c8c8c8;
+	border-radius: 6px;
+	-webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+input#register_terms {
+    height: auto !important;
+}
+
+input.error:focus, select.error:focus, textarea.error:focus, button.error:focus {
+    outline: none;
+    box-shadow: 1px 1px 1px 1px #bdb7b785;
+}
+
+
+.half-width.align-left label {
+    color: #373737;
+    font-family: Raleway;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 24px;
+}
+.half-width.align-left, .half-width.align-right{min-height:auto !important; overflow:inherit !important;}
+
+.form-row {
+    padding: 0 10px 20px 11px;
+    margin-bottom: 30px;
+	
+}
+.rb-checkmark, .cb-checkmark {
+    position: absolute;
+    top: 2px;
+    left: 0;
+    height: 18px;
+    width: 18px;
+	border:1px solid #ddd;
+    background-color:#fff;;
+}
+
+/* Create a custom radio button */
+
+.rb-checkmark {
+	border-radius: 50%;
+}
+
+/* On mouse-over, add a grey background color */
+.rb-container:hover input ~ .rb-checkmark, .cb-container:hover input ~ .cb-checkmark {
+	background-color: #6dacde;
+}
+
+/* When the radio button is checked, add a blue background */
+.rb-container input:checked ~ .rb-checkmark, .cb-container input:checked ~ .cb-checkmark {
+  	background-color: #6dacde;
+}
+
+/* Create the indicator (the dot/circle - hidden when not checked) */
+.rb-checkmark:after, .cb-checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+/* Show the indicator (dot/circle) when checked */
+.rb-container input:checked ~ .rb-checkmark:after, .cb-container input:checked ~ .cb-checkmark:after {
+    display: block;
+}
+
+.rb-container .rb-checkmark:after {
+    top: 6px;
+    left: 6px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: white;
+    text-align: center;
+}
+input#btSubmit{outline:0;}
+
+
+p.normal.align-center {
+    color: #54646F;
+    font-family: Raleway;
+    font-size: 16px;
+    line-height: 28px;
+    text-align: center;
+}
+.three-quarters-width.align-left label{	color: #373737;	font-family: Raleway;	font-size: 18px;	font-weight: bold;	line-height: 24px;}
+
+#fmRegister .colorgraph {
+    border-radius: 4px;   
+}
+.L60{margin-left:70px !important;}
+
+   .L10 {
+    margin: -25px -65px;
+}
+
+.testimonials.col-lg-10.col-md-8.col-sm-8.col-xs-12 p span {
+    font-weight: 600;
+}
+#fmRegister .btn.btn-default.bt.btn-block.btn-lg {
+    background-color: #F2A057;
+    color: #FFFFFF;
+    font-family: Raleway;
+    font-size: 17px;
+    font-weight: 500;
+    line-height: 26px;
+    border-radius: 40px;
+    height: 55px !important;
+    width: 80%;
+    margin: 0 auto !important;
+}
+.testimonials.col-lg-10.col-md-8.col-sm-8.col-xs-12 h3 .text-testimonials{font-style:italic;}
+.testimonials.col-lg-10.col-md-8.col-sm-8.col-xs-12 h3 {font-style:normal;}
+span.eye-open {
+    background: url(../images/eye-1.png);
+    background-repeat: no-repeat;
+    background-position: 100%;
+    z-index: 999;
+    float: left;
+    width: 40px;
+	height:20px;
+}
+span.eye-close{ background: url(../images/eye-close.png);
+    background-repeat: no-repeat;
+    background-position: 100%;
+    z-index: 999;
+    float: left;
+    width: 40px;
+	height:20px;}
+
+.PH-video {
+	margin: 80px 0 40px;
+    padding: 0px;
+    margin-left: 70px;
+}
+.bg-white {
+    background: #fff;
+  
+}
+
+.radio_opt {
+    /* margin-top: -40px !important; */
+    position: relative;
+    top: -12px;
+}
+
+#applicationForm .jvFloat {
+    margin-bottom: 15px;
+	position: relative;
+}
+#applicationForm .half-width.doctor-phone-field label.error.invalid-field,#applicationForm .half-width.doctor-address-field label.error.invalid-field {
+    line-height: normal;
+    top: 45px;
+}
+	#applicationForm div#valid-p_medicare.radio-correct {
+    /*left: -110px !important;*/
+}
+#applicationForm .dr-form:first-child {
+ padding-right: 0px;
+    padding-left: 0px;
+}
+.form-row1.patient_parent_profile.no-show {
+
+    margin-bottom: 40px !important;
+
+}
+select.full-width.not-empty.correct.correct {
+    background: #fff url(../images/step-check.png) no-repeat 98% 50% !important;
+}
+.LoNotSensitive.not-empty.correct{
+    background: #fff url('../images/step-check.png') no-repeat 97% 50% !important;
+
+}
+
+.p_hear_about_extras label.placeHolder.active {
+    line-height: 32px;
+}
+
+#applicationForm .jvFloat label.error {
+    /*position: absolute;*/
+}
+
+html body #applicationForm .one-quarter-width.align-right .radio-with-error {
+    /*margin-left: -120px !important;*/
+}
+.text-safe{
+   display: inline-block;
+    text-align: left;
+    margin: 0;
+    padding: 0;
+    float: left;
+}
+.safe-enroll {
+    padding: 0px;
+    margin: 40px 0;
+}
+.safe-enroll span {
+    text-align: left;
+    width: 70%;
+    display: inline-block;
+    vertical-align: top;
+    color: #6E7070;
+    font-family: Raleway;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 20px;
+}
+.text-content-mac.text-safe img {
+    margin-top: -8px;
+}
+.leavePopupContentMain p{font-size:17px;} 
+.medication-name-field.half-width label{float:left;}
+
+.p0{padding:0px;}
+.content.messagebox.success{margin: 0 auto;}

@@ -1,0 +1,51 @@
+body {
+    padding-top: 130px;
+}
+
+ol.blue-numbers {
+	list-style: none;
+   counter-reset: item;
+}
+
+ol.blue-numbers li {
+   counter-increment: item;
+   margin-bottom: 5px;
+ }
+ol.blue-numbers li:before {
+   margin-right: 10px;
+   content: counter(item)'.';
+   color: #007bc4;
+   font-weight: bold;
+   display: inline-block;
+ }
+ 
+
+.ty-list ol>li {
+	padding-top: 22px;
+}
+
+.ty-list ol ol>li {
+	padding-top: 14px;
+}
+
+.ty-list ol ol ol>li {
+	padding-top: 4px;
+}
+
+.btn {
+	border: none;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 13px 29px;
+    border-radius: 25px;
+}
+
+.btn-orange {
+	background: #ff9127;
+}
+
+.center {
+	text-align: center;
+}

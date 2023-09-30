@@ -1,0 +1,21 @@
+# enable HSTS
+Header set Strict-Transport-Security "max-age=31536000" env=HTTPS
+
+RewriteEngine On
+RewriteBase /
+
+#RewriteCond %{REMOTE_ADDR} !^122\.175\.195\.56
+#RewriteCond %{REMOTE_ADDR} !^12\.180\.203\.50
+#RewriteCond %{REQUEST_URI} !/maintenance.html$ [NC]
+#RewriteCond %{REQUEST_URI} !\.(jpe?g?|png|gif) [NC]
+#RewriteRule .* /maintenance.html [R=302,L]
+
+RedirectMatch 301 ^/enrollment/login\.php$ /patients-dashboard/login\.php
+RedirectMatch 301 ^/patients-dashboard/register\.php$ /enrollment/register\.php
+RedirectMatch 301 ^/register\.php /enrollment/register\.php
+RedirectMatch 301 ^/login\.php /patients-dashboard/login\.php
+
+
+
+php_value upload_max_filesize 20M
+php_value post_max_size 20M

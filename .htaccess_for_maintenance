@@ -1,0 +1,5 @@
+RewriteEngine On
+RewriteBase /
+RewriteCond %{REQUEST_URI} !^/maintenance\.html$
+RewriteCond %{REQUEST_URI} !\.(jpe?g?|png|gif) [NC]
+RewriteRule ^(.*)$ https://prescriptionhope.com/maintenance.html [R=302,L]

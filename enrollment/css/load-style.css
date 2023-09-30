@@ -1,0 +1,742 @@
+/* Credit to bootsnipp.com for the css for the color graph */
+@import url('https://fonts.googleapis.com/css?family=Raleway');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap');
+body{font-family: 'Raleway', sans-serif;}
+.heading-title {
+    text-align: center;
+    color: #1765AD !important;
+    font-family: Raleway;
+    font-size: 30px;
+    font-weight: 600;
+    line-height: 31px;
+	  margin-bottom: 70px;
+    margin-top: 70px;
+}
+.condition a {
+    color: #1765b6;
+    text-decoration: none;
+}
+
+.heading-title small {
+    color: #54646F !important;
+    font-family: Raleway !important;
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    line-height: 35px !important;
+}
+.colorgraph {
+   
+    padding: 40px;
+    background: #fff;
+    border: 2px solid #D7DBDF;
+    background-color: #FFFFFF;
+}
+ #password + .glyphicon {
+   cursor: pointer;
+   pointer-events: all;
+   margin-right: 10px !important;
+ }
+
+  #confirm_password + .glyphicon {
+   cursor: pointer;
+   pointer-events: all;
+   margin-right: 10px !important;
+ }
+ .btn.btn-default.bt.btn-block.btn-lg{
+background-color: #F2A057;
+color: #FFFFFF;	font-family: Raleway;	font-size: 17px;	font-weight: 500;	line-height: 26px;    border-radius: 40px;
+	height: 55px;
+
+}
+p{		color: #54646F;	font-family: Raleway;	font-size: 14px;	line-height: 24px;}
+.form-group {
+    margin-bottom: 15px;
+    padding-bottom:10px;
+	position:relative;
+	
+}
+.col-xs-12.col-sm-6.col-md-6 a{    color: #1765AD;
+    font-family: Raleway;
+    font-size: 14px;
+    line-height: 24px;}
+	.col-xs-12.col-sm-6.col-md-6 p{    color: #6E7070;
+    font-family: Raleway;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 17px;}
+.condition p{padding-left:20px; padding-top:0px;}
+.col-xs-12.col-md-8.col-sm-offset-2 {
+    margin-top: 40px;
+}
+.showpassword {
+    right: 10px;
+    z-index: 99;
+    cursor: pointer;
+    position: absolute;
+    top: 18px;
+    left: auto;
+}
+ul.text-content {
+    list-style: none;
+    padding: 0 0 10px 0;
+}
+ul.text-content li {
+    display: inline-block;
+    vertical-align: top;
+}
+ul.text-content span {
+    color: #6E7070;
+    font-family: Raleway;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 17px;
+}
+.col-xs-12.col-sm-8.col-md-8.pull-right {
+    padding: 0px;
+  
+}
+
+
+ul.text-content li:nth-child(3) {
+    float: right;
+}
+#page-container {
+   
+    background: rgb(250, 250, 250);
+}
+.testimonials h3 {
+    opacity: 0.79;
+    color: #2C363D;
+    font-family: Raleway;
+    font-size: 16px;
+    font-style: italic;
+    line-height: 30px;
+	width: 86%;
+}
+.testimonials.col-md-10 p{color: #54646F;
+    font-family: Raleway;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 26px;
+    font-style: normal;}
+	img.img-circle.img-responsive {
+    margin: 0 auto;
+    text-align: right;
+    float: right;
+}
+input::-webkit-input-placeholder {
+color: #54646F !important;
+}
+ 
+input:-moz-placeholder { /* Firefox 18- */
+color:#54646F !important;  
+}
+ 
+input::-moz-placeholder {  /* Firefox 19+ */
+color: #54646F !important;  
+}
+ 
+input:-ms-input-placeholder {  
+color: #54646F!important;  
+}
+span.t1 img {
+    vertical-align: top;
+}
+span.t2 {
+    display: inline-block;
+	vertical-align: top;
+}
+form#fmRegister .col-xs-12.col-sm-4.col-md-4.row a {vertical-align:middle; font-size:16px;color: #1765AD;}
+.col-xs-12.col-sm-4.col-md-4.row.already_acc, .col-xs-12.col-sm-7.col-md-7.pull-right.row {
+    padding-left: 0px;
+}
+form#fmRegister {
+    float: left;
+    width: 100%;
+}
+.colorgraph.col-md-11.col-xs-12.col-md-offset-1{
+    margin-left: 6%;
+	    border-radius: 6px;
+}
+.colorgraph1.col-md-11.col-xs-12.col-md-offset-1 { margin-left: 7%;}
+.col-xs-12.col-sm-12.col-md-12.condition label.form-check-label {
+    font-size: 14px;
+    color: #54646F;
+}
+
+/**********/
+div#video_box {
+	z-index:999;
+    text-align: right;
+    position: fixed;
+    top: auto;
+    bottom: 116px;
+    vertical-align: middle;
+    left: auto;
+    right: 0px;
+    float: left;
+    display: inline-block;
+    background: #7f7f7f;
+    width: 400px;
+    z-index: 9;    box-shadow: 0 0 7px #7f7f7f;
+}
+div#close_video_box {
+    display: inline-block;
+    color: #fff;
+    font-size: 18px;
+    position: relative;
+    left: -15px;
+    top: 6px;
+	z-index:99;
+	cursor:pointer;
+}
+div#video_box .iframe-wrapper {
+    top: -24px;
+    position: relative;
+	  height: 243px;
+}
+div#video_info {
+    padding: 10px; /*8px 14px 20px;*/
+    text-align: center; /*left;*/
+    background: #fff;
+    margin-top: -6px;
+}
+div#video_info p {
+    font-weight: 700;
+    color: #000;
+}
+.iframe-wrapper iframe {
+    width: auto;
+     margin: 0 auto;
+    text-align: center;
+    display: block;
+	height:260px;
+}
+i.glyphicon.glyphicon-eye-open {
+    font-size: 16px;
+    color: #000;
+}
+span.glyphicon.glyphicon-play-circle {
+    font-size: 18px;
+    vertical-align: sub;
+}
+
+a.open_video{color: #1765AD;	font-size: 16px;	font-weight: 600;text-decoration: none;
+    cursor: pointer;}
+.owl-stage-outer .item img.img-circle.img-responsive {
+    margin: 0 auto;
+    text-align: right;
+    float: right;
+    height: 100px;
+    width: 100px;
+    /* vertical-align: text-top; */
+    margin-top: 15px;
+  
+}
+.input-lg{height:53px !important;}
+#testimonials-row .owl-dots{
+ visibility: hidden;
+margin: 0px;
+}
+
+.center-logo {
+    margin: 0 auto;
+    text-align: center;
+    visibility: hidden;
+}
+.right-text {
+    float: right;
+	    text-align: right;
+}
+
+.left-text {
+    float: left;
+}
+
+span.t1 {
+    position: relative;
+    top: 12px;
+    left: -16px;
+}
+
+
+#patient_income_section .three-quarters-width.align-left {
+    margin-bottom: 10px;
+}
+p.normal.align-center.p10 {
+    padding: 0 6rem;
+}
+.doctor-no-field.p20-width.align-left.bold.text-center.w100, .medication-no-field.p20-width.align-center.bold.w100 {
+    float: left;
+    width: 100%;
+    text-align: center;
+    padding: 30px 0;
+    color: #000;
+    font-size: 18px;
+}
+.jvFloat .placeHolder {
+    top: 15px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+	text-align:left;
+}
+input.cancel.small-button-orange.button-auto-width.correct{	color: #FFFFFF;	font-family: Raleway;	font-size: 16px;	font-weight: bold;	line-height: 0; letter-spacing:0.2px;padding: 26px 20px;background-image: none !important;}
+	.table-striped>tbody>tr:nth-of-type(odd) {
+    background-color: transparent;
+}
+.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+    padding: 8px;
+    line-height: 1.42857143;
+    vertical-align: middle;
+    border-bottom: 1px solid #ddd;
+	border-left:none;
+	border-right:none;
+    border-top: none;
+}
+td.remove {
+    font-size: 14px;
+    color: red;
+    opacity: 1;
+    font-weight: 800;
+	text-align:right;
+	cursor:pointer;
+}
+table.table.table-striped.col-sm-10.align-center {
+    padding: 20px 81px;
+    text-align: left;
+}
+tr.total td {
+    border-bottom: none !important;
+    font-weight: bold;
+}
+p.normal.align-center.payment-description {
+    padding: 1rem 5rem;
+}
+form#register_form {
+    border: 1px solid;
+   padding: 50px 45px;
+    border: 2px solid #D7D7D7;
+    border-radius: 6px;
+	background:#fff;
+	    float: left;
+    width: 100%;
+/*	margin-bottom:13rem;*/
+}
+.p-gatway .half-width {
+    min-height: auto;
+}
+.card img {
+   
+    margin: -4px 15px 0 0;
+}
+.half-width.align-left.noMobile{margin-top:0px;}
+.p-gatway {
+    float: left;
+    width: 100%;
+    padding: 20px;
+}
+
+.term-content {
+    float: left;
+    width: 100%;
+}
+.policy_subtitle {
+    display: inline;
+    text-decoration: none;
+    font-weight: bold;
+}
+.content.createAccountBox.align-center p.moduleSubheader {
+    color: #54646F;
+    font-family: Raleway;
+    font-size: 18px;
+    line-height: 28px;
+    text-align: center;
+    padding: 0 15px;
+}
+ .chk_bx p.moduleSubheader{color: #54646F;	font-family: Raleway;	font-size: 18px;	line-height: 28px;	text-align: left;padding: 0 4rem;}
+.term-content p.moduleSubheader {text-align:left !important; padding: 2px 4px;color: #54646F;	font-size: 15px;		line-height: 24px;}
+
+html body .btn-en-group .small-button-orange.correct{color: #FFFFFF;
+    font-family: Raleway;
+    font-size: 17px !important;
+    font-weight: bold;
+    line-height: 26px;
+	border-radius: 40px;
+}
+html body .pt0{	/*font-size: 25px !important;*/letter-spacing: .2px;}
+.text-left.text-blue {
+    font-size: 14px;
+	margin-bottom: 0px;
+		color: #1765AD;	font-family: Raleway;line-height: 24px;
+}
+span.red1 {
+    font-size: 20px;
+    vertical-align: text-top;
+    color:#e87f21 !important;
+}
+.third-width, .half-width {
+    min-height: 92px;
+    /*overflow: hidden;*/
+}
+label.placeHolder {
+    color: #54646F;
+    font-family: Raleway;
+    font-size: 16px;
+    line-height: 20px;
+}
+html body h2.dblue-text.no-text-transformation {
+    color: #1765AD !important;
+    font-family: Raleway;
+    font-weight: bold !important;
+    line-height: 31px;
+    text-align: center;
+	text-transform:capitalize;
+	letter-spacing:0.2;
+	
+}
+.h-line {
+   width: 1098px;
+    margin: 20px auto 0 auto;
+    padding-top: 10px;
+    border-top: 1px solid #E1E1E1;
+    text-align: left;
+    position: relative;
+    left: -40px;
+		
+}
+.remove-div-1 a {
+   text-decoration:none;
+    padding: 4px 14px;
+    border-radius: 40px;
+    border: 1px solid #E1E1E1;
+    background-color: #FFFFFF;
+    color: #1765AD;
+    font-family: Raleway;
+   
+    font-weight: bold;
+	    position: relative;
+    top: -32px;
+    /* line-height: 0; */
+}
+.p_hear_about_extras {
+    margin-top: 40px;
+}
+input.dollar-amount {
+    padding: 20px 10px 10px 22px !important;
+}
+
+#fmForgotPassword{width:60%;margin: 0 auto;}
+.d_sign {
+    position: absolute;
+    z-index: 9;
+    padding: 22px 8px;
+}
+.card.col-sm-12 {
+    position: unset;
+}
+table>tbody>tr.m-list>td:first-child {
+    width: 70%;
+}
+.h30 {
+    font-size: 30px !important;
+}
+span.hlgt {
+    color: #0a69ad;
+}
+.white-bg label.invalid-field, .white-bg #fmRegister label.error {
+    color: #E87F21;
+}
+
+.white-bg label {
+ 
+    font-weight: 400;
+}
+div#med_info p {
+    color: #fff;
+    font-size: 18px;
+    font-weight: 400;
+}
+div#med_info p  span.total_str, div#med_info p  span.ct_med {
+    color: #fff;
+    font-weight: 600;
+}
+.white-bg  div#med_info {
+    float: left;
+    width: 1080px;
+   background: #fff url(../images/bg-medi.png)!important;
+    box-shadow: 1px 2px 10px rgba(0,0,0,0.21);
+    /* height: 95px; */
+    /* vertical-align: middle; */
+    /* line-height: 65px; */
+    padding: 22px;
+    position: relative;
+    left: -46px;
+    color: #54646F;
+    font-family: Raleway;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 28px;
+    text-align: center;
+	    margin-bottom: 20px;
+}
+span.total_str, span.ct_med strong{color: #0a69ad;font-weight: bold;}
+ .white-bg .checkbox-with-label-correct2 label, .white-bg .fancy-cb label {
+    font-weight: 600;
+    color: #54646F;
+    font-family: Raleway;
+    font-size: 16px;
+    line-height: 20px;
+}
+ .white-bg .align-left.card.col-sm-12 {
+    padding: 0;
+}
+a.skipLeave.disable-click {
+    color: #1765AD;
+    font-family: Raleway;
+    font-size: 14px;
+    line-height: 24px;
+    font-weight: 500;
+}
+.p_income_ss_disability.full-width.relative {
+    margin-bottom: 30px;
+}
+.small-button-orange.correct{background-image:none !important;}
+.next-tool {position: relative;
+    bottom: auto;
+    right: 0;
+    cursor: pointer;
+    z-index: 1000;
+    top: 0px;
+}
+a.next-opt, a.submit-opt {
+    color: #fff;
+    text-decoration: none;
+    background: #0069ac;
+    padding: 10px;
+    top: 768px;
+    right: 0;
+    font-weight: 600;
+    position: absolute;
+    box-shadow: 7px 0px 15px 7px #6cabdd;
+    border-radius: 6px 0 0 6px;
+}
+
+.moduleSubheader.success{
+ font-size: 20px;
+    line-height: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+.pdf_dwld{color: #0a69ad;
+    font-weight: 600;
+    font-size: 18px;}
+.container-fluid.iframe_custom_container {
+    background: #000000ba;
+}
+
+@media all and (max-width: 1199px) and (min-width: 992px) {
+	html body #enroll-now .h-line {
+    width: 100%;
+    left: 0;
+}
+}
+@media all and (max-width: 991px) and (min-width: 768px) {
+	html body .safe-enroll span {
+    text-align: left;
+    width: 74%;}
+	html body .text-safe {
+    display: inline;
+    text-align: left;
+    margin: 0;
+    padding: 0;
+	float:none;    
+}	
+div#valid-p_gender, div#valid-p_is_minor, div#valid-p_has_income{margin-left:0px !important;}
+	.m-v-10	{margin:20px 0;}
+	
+	.PH-video {
+    margin: 60px auto 0;
+}
+html body #enroll-now .h-line {
+    width: 100%;
+    left: 0;
+}
+.colorgraph {
+padding: 30px;}
+}
+
+@media only screen and (max-width:767px) {
+	html body #enroll-now .h-line {
+    width: 100%;
+    left: 0;
+}
+	#register_form .jvFloat {
+    margin-top: 0em;
+   
+}
+	.PH-video {
+     margin:0 auto;
+	 padding:20px;
+   
+}
+ p.moduleSubheader{padding:0px;}
+ form#register_form {padding: 10px 15px;}
+ p.normal.align-center.p10 {
+    padding: 0;
+}
+.third-width, .half-width {
+    min-height: auto;
+   
+}
+.three-quarters-width.align-left, .half-width.align-left {
+    margin-bottom: 10px;
+}
+.p-gatway {
+    padding: 0;
+}
+p.normal.align-center.payment-description {
+    padding: 10px 0rem;
+}
+table.table.table-striped.col-sm-10.align-center {
+padding: 20px 10px;}
+.content {
+padding: 24px 0px;}
+.dr-form, .medication-row { 
+    padding: 0 0 20px 0;
+}
+#fmForgotPassword{width:100%;}
+}
+.col-xs-12.col-sm-3.col-md-3.pull-right {
+
+    padding: 0;
+    text-align: right;
+    margin: 0px;
+
+}
+.col-xs-12.col-md-11.col-md-offset-1.col-sm-12.L60 {
+    margin-bottom: 20px;
+}
+
+.text-content img {
+margin-right: 10px;
+    width: 10%;
+    display: inline-block;
+
+}
+.already_acc a {
+    color: #1765AD;
+    font-family: Raleway;
+    font-size: 14px !important;
+    line-height: 24px;
+    font-weight: 300;
+}
+.text-content span {
+    text-align: left;
+    width: 70%;
+    display: inline-block;
+    vertical-align: top;
+    color: #6E7070;
+    font-family: Raleway;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 17px;
+}
+.col-xs-12.col-sm-6.col-md-5 {
+    text-align: right;
+}
+.col-sm-8.pull-right {
+    display: flex;
+    float: right;
+    padding-left: 100px;
+    padding-right: 0;
+    margin-right: -20px;
+}
+.col-xs-12.col-sm-4.col-md-4.row.already_acc {
+    margin-top: 20px;
+}
+
+.PH-video-content {
+    margin-top: 60px;
+}
+input#email.correct, input#email_confirm.correct {
+    background: #fff url(../images/step-check.png) no-repeat 98% 50% !important;
+}
+#fmRegister .condition p {
+    padding: 0 30px;
+}
+#enroll-now .h-line {
+    width: 1080px;   
+    left: -46px;
+}
+#enroll-now .content.createAccountBox.align-center p.moduleSubheader {font-size: 18px;line-height: 22px;}
+div#testimonials-row {
+    padding: 20px 20px 30px;
+}
+
+.dollar-amount.input_zero.no-float-label.LoNotSensitive{padding: 12px 10px 10px 22px !important;}
+/*.dollar-amount.input_zero.no-float-label.LoNotSensitive:not(.error){background: #fff url(../images/step-check.png) no-repeat 98% 50% !important;}
+*/
+.glyphicon { font-family: 'Glyphicons Halflings' !important;}
+
+.jvFloat .placeHolder.required {
+    color: #54646f !important;
+}
+.jvFloat .placeHolder.required.active {
+    color: #59afe5 !important;
+}
+#enroll-now .content.createAccountBox.align-center p.moduleSubheader.terms_scroll_box.align-justify {
+    font-size: 16px;
+    text-align: justify !important;
+    padding: 15px;
+}
+.right-padding-35.bottom-padding-15 label.cb-container.big {
+    font-size: 16px;
+}
+div.dr-form>div {
+    float: left;
+    width: 100%;
+}
+
+#fmRegister a.tooltip-icon, #enroll-now a.tooltip-icon{background: url(../images/tooltip-green.png) no-repeat;}
+.tooltip-text {display: block;position: absolute;top: auto;left: 2px;width: auto;cursor: pointer;background: transparent;z-index: 1000;font-size: 14px;text-align: left;}
+
+.checkbox-with-label-error2 span.cb-checkmark, .form-check-input.checkbox-normal.error + span.cb-checkmark {border-color: #ff0000;}
+.chkbox-error-blk {float: left;width: 100%;margin: -25px 0 0 0 !important;text-align: left;font-size: 13px;}
+.chkbox-error-blk .error {color:#E87F21;}
+.chkbox-error-blk label.error {font-size: 13px !important;}
+#enroll-now .checkbox-with-label-error2{background: none;}
+.hideme{display: none;}
+
+/****** CSS for select box only *******/
+.jvFloat.sel_wrapper:after {content: "*";color: #e87f21 !important;position: absolute;font-size: 21px;top: 12px; right: 10px; font-family: 'Poppins', sans-serif !important;}
+.jvFloat.sel_wrapper select {
+    padding-right: 20px;
+}
+.jvFloat.sel_wrapper.p_state_wrapper:after {left: 56px; right: auto;}
+.jvFloat.sel_wrapper.doctor_state_wrapper:after {left: 52px; right: auto;}
+/*.jvFloat.sel_wrapper.p_hear_about_wrapper:after {left: 326px;}*/
+.jvFloat.sel_wrapper.medication_doctor_wrapper:after {left: 221px; left: auto; right: 6px;}
+/****** CSS for select box only *******/
+
+
+p.align-center.moduleSubheader strong {font-size: 24px;}
+.inc {padding: 0 8px;}
+a.income_false.inc {border-left: 1px solid #6dacde;}
+.m-100 {margin-top: 70px;}
+.content.createAccountBox.align-center {padding: 80px 0 0;}
+.medication-doctor-field>label.placeHolder {display: none;}
+#fmMsg .alert.alert-info {background-image: linear-gradient(to bottom,#9cc5e85c 0,#1173b4b3 100%);color: #004d7d;font-size: 14px;}
+#fmMsg .alert {font-size: 14px;}
+#fmMsg .alert a.close {font-size: 42px;right: -9px !important;}
+#fmForgotPassword #fmMsg .alert a.close {font-size: 28px;}
+.m-v10 {margin-bottom: 18px !important;}
+form#fmChangePassword2, form#fmChangeEmail {width: 60%;margin: 0 auto;text-align: left;}
+
+/*div#fmMsg.error {background-color: #ff000096;border: 2px solid #ff0000}
+div#fmMsg {padding: 25px;color: #fff;text-align: center;border-radius: 4px;border: 2px solid transparent;}
+div#fmMsg.success {background-color: #6cabdd;border: 2px solid #3893d0;}*/
+
+.padding-right-30{padding-right: 30px;}
+.btn_blue.bold.underline {background: #1765ad;color: #fff;padding: 12px;border-radius: 4px;}
+button.btn_blue.bold.underline {text-decoration: none;border: none;}
